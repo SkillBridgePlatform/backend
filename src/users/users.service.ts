@@ -7,21 +7,18 @@ import { UsersRepository } from './users.repository';
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  // Fetch all users
   async getUsers(): Promise<User[]> {
     return await this.usersRepository.getUsers();
   }
 
-  // Fetch a single user by ID
   async getUser(id: string): Promise<User> {
     const user = await this.usersRepository.getUserById(id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User not found`);
     }
     return user;
   }
 
-  // Create a new user (sign up)
   async signUp(createUserDto: CreateUserDto): Promise<User> {
     return await this.usersRepository.createUser(createUserDto);
   }
