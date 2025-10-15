@@ -21,7 +21,7 @@ export class UsersRepository {
       .from('users')
       .select('*')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
     if (error) throw new Error(error.message);
     return data;
