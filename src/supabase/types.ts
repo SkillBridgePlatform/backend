@@ -39,446 +39,81 @@ export type Database = {
   };
   public: {
     Tables: {
-      courses: {
+      schools: {
         Row: {
-          created_at: string;
-          description: string | null;
-          description_ar: string | null;
-          description_fr: string | null;
+          created_at: string | null;
           id: string;
-          slug: string;
-          title: string;
-          title_ar: string | null;
-          title_fr: string | null;
-          updated_at: string;
+          name: string;
+          updated_at: string | null;
         };
         Insert: {
-          created_at?: string;
-          description?: string | null;
-          description_ar?: string | null;
-          description_fr?: string | null;
-          id?: string;
-          slug: string;
-          title: string;
-          title_ar?: string | null;
-          title_fr?: string | null;
-          updated_at?: string;
+          created_at?: string | null;
+          id: string;
+          name: string;
+          updated_at?: string | null;
         };
         Update: {
-          created_at?: string;
-          description?: string | null;
-          description_ar?: string | null;
-          description_fr?: string | null;
+          created_at?: string | null;
           id?: string;
-          slug?: string;
-          title?: string;
-          title_ar?: string | null;
-          title_fr?: string | null;
-          updated_at?: string;
+          name?: string;
+          updated_at?: string | null;
         };
         Relationships: [];
-      };
-      module_questions: {
-        Row: {
-          correct_answer: string;
-          created_at: string;
-          id: string;
-          module_id: string;
-          option_a: string;
-          option_a_ar: string | null;
-          option_a_fr: string | null;
-          option_b: string;
-          option_b_ar: string | null;
-          option_b_fr: string | null;
-          option_c: string;
-          option_c_ar: string | null;
-          option_c_fr: string | null;
-          option_d: string;
-          option_d_ar: string | null;
-          option_d_fr: string | null;
-          order_index: number;
-          question: string;
-          question_ar: string | null;
-          question_fr: string | null;
-        };
-        Insert: {
-          correct_answer: string;
-          created_at?: string;
-          id?: string;
-          module_id: string;
-          option_a: string;
-          option_a_ar?: string | null;
-          option_a_fr?: string | null;
-          option_b: string;
-          option_b_ar?: string | null;
-          option_b_fr?: string | null;
-          option_c: string;
-          option_c_ar?: string | null;
-          option_c_fr?: string | null;
-          option_d: string;
-          option_d_ar?: string | null;
-          option_d_fr?: string | null;
-          order_index: number;
-          question: string;
-          question_ar?: string | null;
-          question_fr?: string | null;
-        };
-        Update: {
-          correct_answer?: string;
-          created_at?: string;
-          id?: string;
-          module_id?: string;
-          option_a?: string;
-          option_a_ar?: string | null;
-          option_a_fr?: string | null;
-          option_b?: string;
-          option_b_ar?: string | null;
-          option_b_fr?: string | null;
-          option_c?: string;
-          option_c_ar?: string | null;
-          option_c_fr?: string | null;
-          option_d?: string;
-          option_d_ar?: string | null;
-          option_d_fr?: string | null;
-          order_index?: number;
-          question?: string;
-          question_ar?: string | null;
-          question_fr?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'module_questions_module_id_fkey';
-            columns: ['module_id'];
-            isOneToOne: false;
-            referencedRelation: 'modules';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      modules: {
-        Row: {
-          content: string | null;
-          content_ar: string | null;
-          content_fr: string | null;
-          course_id: string;
-          created_at: string;
-          description: string | null;
-          description_ar: string | null;
-          description_fr: string | null;
-          id: string;
-          order_index: number;
-          title: string;
-          title_ar: string | null;
-          title_fr: string | null;
-          transcript: string | null;
-          transcript_ar: string | null;
-          transcript_fr: string | null;
-          transcript_generated: boolean | null;
-          updated_at: string;
-          video_url: string | null;
-          video_url_ar: string | null;
-          video_url_fr: string | null;
-        };
-        Insert: {
-          content?: string | null;
-          content_ar?: string | null;
-          content_fr?: string | null;
-          course_id: string;
-          created_at?: string;
-          description?: string | null;
-          description_ar?: string | null;
-          description_fr?: string | null;
-          id?: string;
-          order_index?: number;
-          title: string;
-          title_ar?: string | null;
-          title_fr?: string | null;
-          transcript?: string | null;
-          transcript_ar?: string | null;
-          transcript_fr?: string | null;
-          transcript_generated?: boolean | null;
-          updated_at?: string;
-          video_url?: string | null;
-          video_url_ar?: string | null;
-          video_url_fr?: string | null;
-        };
-        Update: {
-          content?: string | null;
-          content_ar?: string | null;
-          content_fr?: string | null;
-          course_id?: string;
-          created_at?: string;
-          description?: string | null;
-          description_ar?: string | null;
-          description_fr?: string | null;
-          id?: string;
-          order_index?: number;
-          title?: string;
-          title_ar?: string | null;
-          title_fr?: string | null;
-          transcript?: string | null;
-          transcript_ar?: string | null;
-          transcript_fr?: string | null;
-          transcript_generated?: boolean | null;
-          updated_at?: string;
-          video_url?: string | null;
-          video_url_ar?: string | null;
-          video_url_fr?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'modules_course_id_fkey';
-            columns: ['course_id'];
-            isOneToOne: false;
-            referencedRelation: 'courses';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      resources: {
-        Row: {
-          course_id: string;
-          created_at: string;
-          description: string | null;
-          description_ar: string | null;
-          description_fr: string | null;
-          id: string;
-          order_index: number;
-          title: string;
-          title_ar: string | null;
-          title_fr: string | null;
-          type: string;
-          url: string;
-        };
-        Insert: {
-          course_id: string;
-          created_at?: string;
-          description?: string | null;
-          description_ar?: string | null;
-          description_fr?: string | null;
-          id?: string;
-          order_index?: number;
-          title: string;
-          title_ar?: string | null;
-          title_fr?: string | null;
-          type?: string;
-          url: string;
-        };
-        Update: {
-          course_id?: string;
-          created_at?: string;
-          description?: string | null;
-          description_ar?: string | null;
-          description_fr?: string | null;
-          id?: string;
-          order_index?: number;
-          title?: string;
-          title_ar?: string | null;
-          title_fr?: string | null;
-          type?: string;
-          url?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'resources_course_id_fkey';
-            columns: ['course_id'];
-            isOneToOne: false;
-            referencedRelation: 'courses';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      user_progress: {
-        Row: {
-          completed: boolean;
-          completed_at: string | null;
-          course_id: string;
-          created_at: string;
-          id: string;
-          module_id: string | null;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          completed?: boolean;
-          completed_at?: string | null;
-          course_id: string;
-          created_at?: string;
-          id?: string;
-          module_id?: string | null;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          completed?: boolean;
-          completed_at?: string | null;
-          course_id?: string;
-          created_at?: string;
-          id?: string;
-          module_id?: string | null;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'user_progress_course_id_fkey';
-            columns: ['course_id'];
-            isOneToOne: false;
-            referencedRelation: 'courses';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'user_progress_module_id_fkey';
-            columns: ['module_id'];
-            isOneToOne: false;
-            referencedRelation: 'modules';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      user_quiz_attempts: {
-        Row: {
-          answers: Json;
-          attempted_at: string;
-          id: string;
-          module_id: string;
-          passed: boolean;
-          score: number;
-          user_id: string;
-        };
-        Insert: {
-          answers: Json;
-          attempted_at?: string;
-          id?: string;
-          module_id: string;
-          passed: boolean;
-          score: number;
-          user_id: string;
-        };
-        Update: {
-          answers?: Json;
-          attempted_at?: string;
-          id?: string;
-          module_id?: string;
-          passed?: boolean;
-          score?: number;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'user_quiz_attempts_module_id_fkey';
-            columns: ['module_id'];
-            isOneToOne: false;
-            referencedRelation: 'modules';
-            referencedColumns: ['id'];
-          },
-        ];
       };
       users: {
         Row: {
-          challenging_subjects: string[] | null;
-          created_at: string;
-          date_of_birth: string | null;
-          email: string;
+          created_at: string | null;
+          email: string | null;
           first_name: string;
-          gender: string | null;
-          grade_level: string | null;
-          hobbies: string[] | null;
           id: string;
-          interest_level: string | null;
-          language_preferences: string[] | null;
+          language: Database['public']['Enums']['user_language'] | null;
           last_name: string;
-          preferred_learning_methods: string[] | null;
-          school_name: string | null;
-          seen_dashboard_tour: boolean | null;
-          subjects_of_interest: string[] | null;
-          updated_at: string;
+          role: Database['public']['Enums']['user_role'];
+          school_id: string | null;
+          updated_at: string | null;
         };
         Insert: {
-          challenging_subjects?: string[] | null;
-          created_at?: string;
-          date_of_birth?: string | null;
-          email: string;
-          first_name: string;
-          gender?: string | null;
-          grade_level?: string | null;
-          hobbies?: string[] | null;
-          id?: string;
-          interest_level?: string | null;
-          language_preferences?: string[] | null;
-          last_name: string;
-          preferred_learning_methods?: string[] | null;
-          school_name?: string | null;
-          seen_dashboard_tour?: boolean | null;
-          subjects_of_interest?: string[] | null;
-          updated_at?: string;
+          created_at?: string | null;
+          email?: string | null;
+          first_name?: string;
+          id: string;
+          language?: Database['public']['Enums']['user_language'] | null;
+          last_name?: string;
+          role: Database['public']['Enums']['user_role'];
+          school_id?: string | null;
+          updated_at?: string | null;
         };
         Update: {
-          challenging_subjects?: string[] | null;
-          created_at?: string;
-          date_of_birth?: string | null;
-          email?: string;
+          created_at?: string | null;
+          email?: string | null;
           first_name?: string;
-          gender?: string | null;
-          grade_level?: string | null;
-          hobbies?: string[] | null;
           id?: string;
-          interest_level?: string | null;
-          language_preferences?: string[] | null;
+          language?: Database['public']['Enums']['user_language'] | null;
           last_name?: string;
-          preferred_learning_methods?: string[] | null;
-          school_name?: string | null;
-          seen_dashboard_tour?: boolean | null;
-          subjects_of_interest?: string[] | null;
-          updated_at?: string;
+          role?: Database['public']['Enums']['user_role'];
+          school_id?: string | null;
+          updated_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'users_school_id_fkey';
+            columns: ['school_id'];
+            isOneToOne: false;
+            referencedRelation: 'schools';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      get_course_progress: {
-        Args: { course_uuid: string; user_uuid: string };
-        Returns: {
-          completed_modules: number;
-          is_completed: boolean;
-          progress_percentage: number;
-          total_modules: number;
-        }[];
-      };
-      get_module_questions: {
-        Args: { p_module_id: string };
-        Returns: {
-          created_at: string;
-          id: string;
-          module_id: string;
-          option_a: string;
-          option_a_ar: string;
-          option_a_fr: string;
-          option_b: string;
-          option_b_ar: string;
-          option_b_fr: string;
-          option_c: string;
-          option_c_ar: string;
-          option_c_fr: string;
-          option_d: string;
-          option_d_ar: string;
-          option_d_fr: string;
-          order_index: number;
-          question: string;
-          question_ar: string;
-          question_fr: string;
-        }[];
-      };
-      validate_quiz_answers: {
-        Args: { p_answers: Json; p_module_id: string };
-        Returns: Json;
-      };
+      [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      user_language: 'EN' | 'FR' | 'AR';
+      user_role: 'SuperAdmin' | 'SchoolAdmin' | 'Teacher' | 'Student';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -611,6 +246,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      user_language: ['EN', 'FR', 'AR'],
+      user_role: ['SuperAdmin', 'SchoolAdmin', 'Teacher', 'Student'],
+    },
   },
 } as const;

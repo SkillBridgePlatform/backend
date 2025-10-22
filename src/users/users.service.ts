@@ -1,14 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user-dto';
-import { User } from './entities/user.entity';
+import { PaginationOptions } from 'src/common/interfaces';
+import { CreateStaffUserDto } from './dto/create-staff-dto';
+import { UpdateStaffUserDto } from './dto/update-staff-dto';
+import { User, UserFilters } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async getUsers(): Promise<User[]> {
-    return await this.usersRepository.getUsers();
+  async getUsers(
+    filters: UserFilters = {},
+    pagination: PaginationOptions = {},
+  ): Promise<User[]> {
+    return this.usersRepository.getUsers(filters, pagination);
   }
 
   async getUser(id: string): Promise<User> {
@@ -19,7 +24,18 @@ export class UsersService {
     return user;
   }
 
-  async signUp(createUserDto: CreateUserDto): Promise<User> {
-    return await this.usersRepository.createUser(createUserDto);
+  async createStaffUser(createStaffUserDto: CreateStaffUserDto): Promise<User> {
+    return this.usersRepository.createStaffUser(createStaffUserDto);
+  }
+
+  async updateStaffUser(
+    id: string,
+    updates: UpdateStaffUserDto,
+  ): Promise<User> {
+    return this.usersRepository.updateStaffUser(id, updates);
+  }
+
+  async deleteStaffUser(id: string): Promise<void> {
+    return this.usersRepository.deleteStaffUser(id);
   }
 }
