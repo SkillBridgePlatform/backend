@@ -12,8 +12,9 @@ export class UsersService {
   async getUsers(
     filters: UserFilters = {},
     pagination: PaginationOptions = {},
-  ): Promise<User[]> {
-    return this.usersRepository.getUsers(filters, pagination);
+    search?: string,
+  ): Promise<{ users: User[]; total: number }> {
+    return this.usersRepository.getUsers(filters, pagination, search);
   }
 
   async getUser(id: string): Promise<User> {

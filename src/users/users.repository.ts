@@ -14,15 +14,28 @@ export class UsersRepository {
   async getUsers(
     filters: UserFilters = {},
     pagination: PaginationOptions = {},
-  ): Promise<User[]> {
-    let query = this.supabase.client.from('users').select('*');
+    search?: string,
+  ): Promise<{ users: User[]; total: number }> {
+    let query = this.supabase.client
+      .from('users')
+      .select('*', { count: 'exact' });
 
+    // Apply filters
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined) {
         query = query.eq(key, value);
       }
     });
 
+    // Apply search
+    if (search) {
+      const searchPattern = `%${search}%`;
+      query = query.or(
+        `first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},email.ilike.${searchPattern}`,
+      );
+    }
+
+    // Apply pagination
     if (pagination.limit !== undefined) query = query.limit(pagination.limit);
     if (pagination.offset !== undefined)
       query = query.range(
@@ -30,10 +43,11 @@ export class UsersRepository {
         pagination.offset + (pagination.limit ?? 0) - 1,
       );
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) throw new InternalServerErrorException(error.message);
-    return data as User[];
+
+    return { users: data as User[], total: count ?? 0 };
   }
 
   async getUserById(id: string): Promise<User | null> {

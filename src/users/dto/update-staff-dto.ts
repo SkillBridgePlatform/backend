@@ -14,11 +14,6 @@ export class UpdateStaffUserDto {
   @IsString()
   last_name?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  password?: string;
-
   @ApiPropertyOptional({ enum: UserRole })
   @IsOptional()
   @IsEnum(UserRole)

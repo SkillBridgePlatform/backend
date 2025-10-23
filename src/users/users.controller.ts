@@ -9,6 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { UserLanguage, UserRole } from 'src/common/enums';
 import { CreateStaffUserDto } from './dto/create-staff-dto';
 import { UpdateStaffUserDto } from './dto/update-staff-dto';
 import { User } from './entities/user.entity';
@@ -22,7 +23,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Retrieve users with optional filters and pagination',
   })
-  @ApiResponse({ status: 200, description: 'List of users' })
+  @ApiResponse({ status: 200, description: 'List of users with total count' })
   @ApiQuery({ name: 'role', required: false })
   @ApiQuery({ name: 'school_id', required: false })
   @ApiQuery({ name: 'language', required: false })
@@ -31,23 +32,25 @@ export class UsersController {
   @ApiQuery({ name: 'email', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'offset', required: false })
+  @ApiQuery({ name: 'search', required: false })
   async getUsers(
-    @Query('role') role?: string,
+    @Query('role') role?: UserRole,
     @Query('school_id') school_id?: string,
-    @Query('language') language?: string,
+    @Query('language') language?: UserLanguage,
     @Query('first_name') first_name?: string,
     @Query('last_name') last_name?: string,
     @Query('email') email?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
-  ): Promise<User[]> {
+    @Query('search') search?: string,
+  ): Promise<{ users: User[]; total: number }> {
     const filters = { role, school_id, language, first_name, last_name, email };
     const pagination = {
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
     };
 
-    return this.usersService.getUsers(filters, pagination);
+    return this.usersService.getUsers(filters, pagination, search);
   }
 
   @Get(':id')
