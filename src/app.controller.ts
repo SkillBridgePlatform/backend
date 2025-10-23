@@ -1,8 +1,7 @@
 import { Controller, Get, HttpStatus } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { version } from '../package.json';
 
-@ApiTags('app')
 @Controller()
 export class AppController {
   @Get()
