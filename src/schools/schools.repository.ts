@@ -1,0 +1,93 @@
+import { SchoolInsert } from './entities/schools.entity';
+// src/schools/repository/schools-supabase.repository.ts
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { PaginationOptions } from 'src/common/interfaces';
+import { SupabaseService } from '../supabase/supabase.service';
+import { CreateSchoolDto } from './dto/create-school-dto';
+import { UpdateSchoolDto } from './dto/update-school-dto';
+import { School } from './entities/schools.entity';
+
+@Injectable()
+export class SchoolsRepository {
+  constructor(private readonly supabase: SupabaseService) {}
+
+  async getSchools(
+    pagination: PaginationOptions = {},
+    search?: string,
+  ): Promise<{ schools: School[]; total: number }> {
+    let query = this.supabase.client
+      .from('schools')
+      .select('*', { count: 'exact' });
+
+    // Apply search
+    if (search) {
+      const searchPattern = `%${search}%`;
+      query = query.or(`name.ilike.${searchPattern}`);
+    }
+
+    // Apply pagination
+    if (pagination.limit !== undefined) query = query.limit(pagination.limit);
+    if (pagination.offset !== undefined)
+      query = query.range(
+        pagination.offset,
+        pagination.offset + (pagination.limit ?? 0) - 1,
+      );
+
+    const { data, error, count } = await query;
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    return { schools: data as School[], total: count ?? 0 };
+  }
+
+  async getSchoolById(id: string): Promise<School | null> {
+    const { data, error } = await this.supabase.client
+      .from('schools')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data;
+  }
+
+  async createSchool(createSchoolDto: CreateSchoolDto): Promise<School> {
+    const { name } = createSchoolDto;
+
+    if (!name) throw new InternalServerErrorException('Name is required');
+
+    const supabase = this.supabase.client;
+
+    const { data: schoolData, error: dbError } = await supabase
+      .from('schools')
+      .insert({
+        name: name,
+      } as SchoolInsert)
+      .select()
+      .single();
+
+    if (dbError) throw new InternalServerErrorException(dbError.message);
+    return schoolData;
+  }
+
+  async updateSchool(id: string, updates: UpdateSchoolDto): Promise<School> {
+    const { data, error } = await this.supabase.client
+      .from('schools')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data as School;
+  }
+
+  async deleteSchool(id: string): Promise<void> {
+    const { error: dbError } = await this.supabase.client
+      .from('schools')
+      .delete()
+      .eq('id', id);
+
+    if (dbError) throw new InternalServerErrorException(dbError.message);
+  }
+}
