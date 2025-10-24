@@ -7,18 +7,33 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
+import type { Request } from 'express';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserLanguage, UserRole } from 'src/common/enums';
 import { CreateStaffUserDto } from './dto/create-staff-dto';
+import { UpdateProfileDto } from './dto/update-profile-dto';
 import { UpdateStaffUserDto } from './dto/update-staff-dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
+@ApiBearerAuth('access-token')
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Roles(UserRole.SuperAdmin)
   @Get()
   @ApiOperation({
     summary: 'Retrieve users with optional filters and pagination',
@@ -49,10 +64,10 @@ export class UsersController {
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
     };
-
     return this.usersService.getUsers(filters, pagination, search);
   }
 
+  @Roles(UserRole.SuperAdmin)
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a user by ID' })
   @ApiResponse({ status: 200, description: 'User found' })
@@ -61,6 +76,7 @@ export class UsersController {
     return await this.usersService.getUser(id);
   }
 
+  @Roles(UserRole.SuperAdmin)
   @Post('staff')
   @ApiOperation({ summary: 'Create a new staff/admin user' })
   @ApiResponse({ status: 201, description: 'User successfully created' })
@@ -69,6 +85,7 @@ export class UsersController {
     return this.usersService.createStaffUser(dto);
   }
 
+  @Roles(UserRole.SuperAdmin)
   @Patch('staff/:id')
   @ApiOperation({ summary: 'Update an existing staff/admin user' })
   @ApiResponse({ status: 200, description: 'User successfully updated' })
@@ -80,11 +97,24 @@ export class UsersController {
     return this.usersService.updateStaffUser(id, dto);
   }
 
+  @Roles(UserRole.SuperAdmin)
   @Delete('staff/:id')
   @ApiOperation({ summary: 'Delete a staff/admin user' })
   @ApiResponse({ status: 200, description: 'User successfully deleted' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async deleteStaffUser(@Param('id') id: string): Promise<void> {
     return this.usersService.deleteStaffUser(id);
+  }
+
+  @Patch('profile')
+  @ApiOperation({ summary: 'Update the authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'Profile successfully updated' })
+  @ApiResponse({ status: 400, description: 'Bad request / validation error' })
+  async updateProfile(
+    @Req() req: Request,
+    @Body() dto: UpdateProfileDto,
+  ): Promise<User> {
+    const userId = req.user!.id;
+    return this.usersService.updateProfile(userId, dto);
   }
 }

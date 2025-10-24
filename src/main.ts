@@ -34,6 +34,10 @@ async function bootstrap() {
     .setTitle('SkillBridge API')
     .setDescription('API documentation for SkillBridge')
     .setVersion(version)
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

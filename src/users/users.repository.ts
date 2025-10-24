@@ -1,5 +1,9 @@
 // src/users/repository/users-supabase.repository.ts
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UserRole } from 'src/common/enums';
 import { PaginationOptions } from 'src/common/interfaces';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -136,5 +140,30 @@ export class UsersRepository {
       .eq('id', id);
 
     if (dbError) throw new InternalServerErrorException(dbError.message);
+  }
+
+  async updateProfile(
+    id: string,
+    updates: Partial<Pick<User, 'first_name' | 'last_name' | 'language'>>,
+  ): Promise<User> {
+    const safeUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([, v]) => v !== undefined),
+    );
+
+    if (Object.keys(safeUpdates).length === 0) {
+      throw new BadRequestException('No updates provided');
+    }
+
+    const { data, error } = await this.supabase.client
+      .from('users')
+      .update(safeUpdates)
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+
+    if (error) throw new InternalServerErrorException(error.message);
+    if (!data) throw new InternalServerErrorException('Profile update failed');
+
+    return data as User;
   }
 }

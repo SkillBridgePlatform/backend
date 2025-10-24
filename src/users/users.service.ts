@@ -39,4 +39,11 @@ export class UsersService {
   async deleteStaffUser(id: string): Promise<void> {
     return this.usersRepository.deleteStaffUser(id);
   }
+
+  async updateProfile(
+    id: string,
+    updates: Partial<Pick<User, 'first_name' | 'last_name' | 'language'>>,
+  ): Promise<User> {
+    return this.usersRepository.updateProfile(id, updates);
+  }
 }
