@@ -48,7 +48,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string | null;
-          id: string;
+          id?: string;
           name: string;
           updated_at?: string | null;
         };
@@ -59,6 +59,50 @@ export type Database = {
           updated_at?: string | null;
         };
         Relationships: [];
+      };
+      students: {
+        Row: {
+          created_at: string | null;
+          email: string;
+          first_name: string;
+          id: string;
+          language: Database['public']['Enums']['user_language'];
+          last_name: string;
+          pin: string;
+          school_id: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          email: string;
+          first_name: string;
+          id?: string;
+          language?: Database['public']['Enums']['user_language'];
+          last_name: string;
+          pin: string;
+          school_id?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          email?: string;
+          first_name?: string;
+          id?: string;
+          language?: Database['public']['Enums']['user_language'];
+          last_name?: string;
+          pin?: string;
+          school_id?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'students_school_id_fkey';
+            columns: ['school_id'];
+            isOneToOne: false;
+            referencedRelation: 'schools';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       users: {
         Row: {

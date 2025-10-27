@@ -33,7 +33,7 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Get()
   @ApiOperation({
     summary: 'Retrieve users with optional filters and pagination',
@@ -49,6 +49,7 @@ export class UsersController {
   @ApiQuery({ name: 'offset', required: false })
   @ApiQuery({ name: 'search', required: false })
   async getUsers(
+    @Req() req: Request,
     @Query('role') role?: UserRole,
     @Query('school_id') school_id?: string,
     @Query('language') language?: UserLanguage,
@@ -64,46 +65,62 @@ export class UsersController {
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
     };
-    return this.usersService.getUsers(filters, pagination, search);
+    const authUser = req.user;
+    return this.usersService.getUsers(authUser, filters, pagination, search);
   }
 
   @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.SchoolAdmin)
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a user by ID' })
   @ApiResponse({ status: 200, description: 'User found' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async getUser(@Param('id') id: string): Promise<User> {
-    return await this.usersService.getUser(id);
+  async getUser(@Req() req: Request, @Param('id') id: string): Promise<User> {
+    const authUser = req.user;
+    return await this.usersService.getUser(authUser, id);
   }
 
   @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.SchoolAdmin)
   @Post('staff')
   @ApiOperation({ summary: 'Create a new staff/admin user' })
   @ApiResponse({ status: 201, description: 'User successfully created' })
   @ApiResponse({ status: 400, description: 'Bad request / validation error' })
-  async createStaffUser(@Body() dto: CreateStaffUserDto): Promise<User> {
-    return this.usersService.createStaffUser(dto);
+  async createStaffUser(
+    @Req() req: Request,
+    @Body() dto: CreateStaffUserDto,
+  ): Promise<User> {
+    const authUser = req.user;
+    return this.usersService.createStaffUser(authUser, dto);
   }
 
   @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.SchoolAdmin)
   @Patch('staff/:id')
   @ApiOperation({ summary: 'Update an existing staff/admin user' })
   @ApiResponse({ status: 200, description: 'User successfully updated' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async updateStaffUser(
+    @Req() req: Request,
     @Param('id') id: string,
     @Body() dto: UpdateStaffUserDto,
   ): Promise<User> {
-    return this.usersService.updateStaffUser(id, dto);
+    const authUser = req.user;
+    return this.usersService.updateStaffUser(authUser, id, dto);
   }
 
   @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.SchoolAdmin)
   @Delete('staff/:id')
   @ApiOperation({ summary: 'Delete a staff/admin user' })
   @ApiResponse({ status: 200, description: 'User successfully deleted' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async deleteStaffUser(@Param('id') id: string): Promise<void> {
-    return this.usersService.deleteStaffUser(id);
+  async deleteStaffUser(
+    @Req() req: Request,
+    @Param('id') id: string,
+  ): Promise<void> {
+    const authUser = req.user;
+    return this.usersService.deleteStaffUser(authUser, id);
   }
 
   @Patch('profile')
