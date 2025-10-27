@@ -3,19 +3,31 @@ import { PaginationOptions } from 'src/common/interfaces';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateStudentDto } from './dto/create-student-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
-import { Student, StudentInsert } from './entities/students.entity';
+import {
+  Student,
+  StudentFilters,
+  StudentInsert,
+} from './entities/students.entity';
 
 @Injectable()
 export class StudentsRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
   async getStudents(
+    filters: StudentFilters = {},
     pagination: PaginationOptions = {},
     search?: string,
   ): Promise<{ students: Student[]; total: number }> {
     let query = this.supabase.client
       .from('students')
       .select('*', { count: 'exact' });
+
+    // Apply filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined) {
+        query = query.eq(key, value);
+      }
+    });
 
     // Apply search
     if (search) {

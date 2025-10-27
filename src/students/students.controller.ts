@@ -29,7 +29,7 @@ import { StudentsService } from './students.service';
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('students')
-export class UsersController {
+export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
@@ -41,19 +41,22 @@ export class UsersController {
     status: 200,
     description: 'List of students with total count',
   })
+  @ApiQuery({ name: 'school_id', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'offset', required: false })
   @ApiQuery({ name: 'search', required: false })
   async getStudents(
+    @Query('school_id') school_id?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
     @Query('search') search?: string,
   ): Promise<{ students: Student[]; total: number }> {
+    const filters = { school_id };
     const pagination = {
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
     };
-    return this.studentsService.getStudents(pagination, search);
+    return this.studentsService.getStudents(filters, pagination, search);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
@@ -66,7 +69,7 @@ export class UsersController {
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Post('student')
+  @Post()
   @ApiOperation({ summary: 'Create a new student' })
   @ApiResponse({ status: 201, description: 'Student successfully created' })
   @ApiResponse({ status: 400, description: 'Bad request / validation error' })
@@ -78,7 +81,7 @@ export class UsersController {
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Patch('student/:id')
+  @Patch(':id')
   @ApiOperation({ summary: 'Update an existing student' })
   @ApiResponse({ status: 200, description: 'Student successfully updated' })
   @ApiResponse({ status: 404, description: 'Student not found' })
@@ -90,7 +93,7 @@ export class UsersController {
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Delete('student/:id')
+  @Delete(':id')
   @ApiOperation({ summary: 'Delete a student' })
   @ApiResponse({ status: 200, description: 'Student successfully deleted' })
   @ApiResponse({ status: 404, description: 'Student not found' })

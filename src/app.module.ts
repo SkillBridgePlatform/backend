@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { SchoolsModule } from './schools/schools.module';
+import { StudentsModule } from './students/students.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { UsersModule } from './users/users.module';
 
@@ -11,6 +12,7 @@ import { UsersModule } from './users/users.module';
   imports: [
     SupabaseModule,
     UsersModule,
+    StudentsModule,
     SchoolsModule,
     HealthModule,
     AuthModule,
