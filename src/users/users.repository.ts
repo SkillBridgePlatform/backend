@@ -166,4 +166,29 @@ export class UsersRepository {
 
     return data as User;
   }
+
+  async countUsersByRole(role: UserRole, schoolId?: string): Promise<number> {
+    let query = this.supabase.client
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', role);
+
+    if (schoolId) query = query.eq('school_id', schoolId);
+
+    const { count, error } = await query;
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    return count ?? 0;
+  }
+
+  async countSchools(): Promise<number> {
+    const { count, error } = await this.supabase.client
+      .from('schools')
+      .select('id', { count: 'exact', head: true });
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    return count ?? 0;
+  }
 }

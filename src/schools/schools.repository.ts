@@ -90,4 +90,14 @@ export class SchoolsRepository {
 
     if (dbError) throw new InternalServerErrorException(dbError.message);
   }
+
+  async countSchools(): Promise<number> {
+    const { count, error } = await this.supabase.client
+      .from('schools')
+      .select('id', { count: 'exact', head: true });
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    return count ?? 0;
+  }
 }

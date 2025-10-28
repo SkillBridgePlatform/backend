@@ -15,13 +15,13 @@ export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async getUsers(
-    user,
+    authUser,
     filters: UserFilters = {},
     pagination: PaginationOptions = {},
     search?: string,
   ): Promise<{ users: User[]; total: number }> {
-    if (user.role == UserRole.SchoolAdmin) {
-      filters.school_id = user.school_id;
+    if (authUser.app_metadata.role == UserRole.SchoolAdmin) {
+      filters.school_id = authUser.school_id;
       if (filters.role == UserRole.SuperAdmin) {
         throw new ForbiddenException('Cannot fetch SuperAdmins');
       }
@@ -30,7 +30,7 @@ export class UsersService {
     return this.usersRepository.getUsers(filters, pagination, search);
   }
 
-  async getUser(authUser: any, id: string): Promise<User> {
+  async getUser(authUser, id: string): Promise<User> {
     const user = await this.usersRepository.getUserById(id);
     if (!user) {
       throw new NotFoundException(`User not found`);
@@ -38,7 +38,7 @@ export class UsersService {
 
     if (
       user.role == UserRole.SuperAdmin &&
-      authUser.role == UserRole.SchoolAdmin
+      authUser.app_metadata.role == UserRole.SchoolAdmin
     ) {
       throw new ForbiddenException('Cannot fetch SuperAdmin');
     }
@@ -47,11 +47,11 @@ export class UsersService {
   }
 
   async createStaffUser(
-    authUser: any,
+    authUser,
     createStaffUserDto: CreateStaffUserDto,
   ): Promise<User> {
     if (
-      authUser.role == UserRole.SchoolAdmin &&
+      authUser.app_metadata.role == UserRole.SchoolAdmin &&
       [UserRole.SchoolAdmin, UserRole.SuperAdmin].includes(
         createStaffUserDto.role,
       )
@@ -71,7 +71,7 @@ export class UsersService {
       throw new NotFoundException(`User not found`);
     }
 
-    const authUserRole = authUser.role;
+    const authUserRole = authUser.app_metadata.role;
     const userToUpdateRole = userToUpdate.role as UserRole;
 
     if (
@@ -83,13 +83,13 @@ export class UsersService {
     return this.usersRepository.updateStaffUser(id, updates);
   }
 
-  async deleteStaffUser(authUser: any, id: string): Promise<void> {
+  async deleteStaffUser(authUser, id: string): Promise<void> {
     const userToDelete = await this.usersRepository.getUserById(id);
     if (!userToDelete) {
       throw new NotFoundException(`User not found`);
     }
 
-    const authUserRole = authUser.role;
+    const authUserRole = authUser.app_metadata.role;
     const userToDeleteRole = userToDelete.role as UserRole;
 
     if (

@@ -114,4 +114,23 @@ export class StudentsRepository {
 
     if (dbError) throw new InternalServerErrorException(dbError.message);
   }
+
+  async countStudents(): Promise<number> {
+    const { count, error } = await this.supabase.client
+      .from('students')
+      .select('id', { count: 'exact', head: true });
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return count ?? 0;
+  }
+
+  async countStudentsBySchool(schoolId: string): Promise<number> {
+    const { count, error } = await this.supabase.client
+      .from('students')
+      .select('id', { count: 'exact', head: true })
+      .eq('school_id', schoolId);
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return count ?? 0;
+  }
 }
