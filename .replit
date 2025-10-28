@@ -1,5 +1,5 @@
 # .replit - place at the root of your Repl (same folder as package.json)
-entrypoint = "dist/main.js"
+entrypoint = "dist/src/main.js"
 modules = ["nodejs-22"]
 hidden = [".config", "package-lock.json"]
 
@@ -11,7 +11,7 @@ channel = "stable-24_11"
 
 [deployment]
 # Command to run your NestJS server in deployment
-run = ["node", "dist/main.js"]
+run = ["node", "dist/src/main.js"]
 deploymentTarget = "autoscale"
 ignorePorts = false
 
