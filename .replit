@@ -1,5 +1,19 @@
-# .replit - place this in the root of your Repl (same folder as package.json)
-run = "node dist/main.js"             # command to run your built NestJS app
-build = "npm install && npm run build" # install dependencies and build NestJS
-language = "nodejs"
-entrypoint = "dist/main.js"           # default file Replit will open/run
+# .replit - place at the root of your Repl (same folder as package.json)
+entrypoint = "dist/main.js"
+modules = ["nodejs-22"]
+hidden = [".config", "package-lock.json"]
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix", "package.json", "package-lock.json"]
+
+[nix]
+channel = "stable-24_11"
+
+[deployment]
+# Command to run your NestJS server in deployment
+run = ["node", "dist/main.js"]
+deploymentTarget = "autoscale"
+ignorePorts = false
+
+[agent]
+expertMode = false
