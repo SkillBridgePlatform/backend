@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { UserLanguage } from 'src/common/enums';
 
 export class CreateStudentDto {
@@ -14,8 +14,7 @@ export class CreateStudentDto {
   last_name: string;
 
   @ApiProperty()
-  @IsEmail()
-  email: string;
+  username: string;
 
   @ApiProperty()
   @IsNotEmpty()

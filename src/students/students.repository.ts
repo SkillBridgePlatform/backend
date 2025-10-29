@@ -33,7 +33,7 @@ export class StudentsRepository {
     if (search) {
       const searchPattern = `%${search}%`;
       query = query.or(
-        `first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},email.ilike.${searchPattern}`,
+        `first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},username.ilike.${searchPattern}`,
       );
     }
 
@@ -64,18 +64,18 @@ export class StudentsRepository {
   }
 
   async createStudent(createStudentDto: CreateStudentDto): Promise<Student> {
-    const { email, pin, first_name, last_name, school_id, language } =
+    const { username, pin, first_name, last_name, school_id, language } =
       createStudentDto;
 
-    if (!email || !pin)
-      throw new InternalServerErrorException('Email and pin are required');
+    if (!username || !pin)
+      throw new InternalServerErrorException('Username and pin are required');
 
     const supabase = this.supabase.client;
 
     const { data: studentData, error: dbError } = await supabase
       .from('students')
       .insert({
-        email,
+        username,
         pin,
         first_name,
         last_name,
