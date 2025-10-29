@@ -24,7 +24,7 @@ import { UserLanguage, UserRole } from 'src/common/enums';
 import { CreateStaffUserDto } from './dto/create-staff-dto';
 import { UpdateProfileDto } from './dto/update-profile-dto';
 import { UpdateStaffUserDto } from './dto/update-staff-dto';
-import { User } from './entities/user.entity';
+import { User, UserInfo } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 @ApiBearerAuth('access-token')
@@ -32,6 +32,28 @@ import { UsersService } from './users.service';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Patch('profile')
+  @ApiOperation({ summary: 'Update the authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'Profile successfully updated' })
+  @ApiResponse({ status: 400, description: 'Bad request / validation error' })
+  async updateProfile(
+    @Req() req: Request,
+    @Body() dto: UpdateProfileDto,
+  ): Promise<User> {
+    const userId = req.user!.id;
+    return this.usersService.updateProfile(userId, dto);
+  }
+
+  @Roles()
+  @Get('userinfo')
+  @ApiOperation({ summary: 'Retrieve user info' })
+  @ApiResponse({ status: 200, description: 'User info found' })
+  @ApiResponse({ status: 404, description: 'User info not found' })
+  async getUserInfo(@Req() req: Request): Promise<UserInfo> {
+    const authUser = req.user;
+    return await this.usersService.getUserInfo(authUser.id);
+  }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Get()
@@ -69,8 +91,7 @@ export class UsersController {
     return this.usersService.getUsers(authUser, filters, pagination, search);
   }
 
-  @Roles(UserRole.SuperAdmin)
-  @Roles(UserRole.SchoolAdmin)
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a user by ID' })
   @ApiResponse({ status: 200, description: 'User found' })
@@ -80,8 +101,7 @@ export class UsersController {
     return await this.usersService.getUser(authUser, id);
   }
 
-  @Roles(UserRole.SuperAdmin)
-  @Roles(UserRole.SchoolAdmin)
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Post('staff')
   @ApiOperation({ summary: 'Create a new staff/admin user' })
   @ApiResponse({ status: 201, description: 'User successfully created' })
@@ -94,8 +114,7 @@ export class UsersController {
     return this.usersService.createStaffUser(authUser, dto);
   }
 
-  @Roles(UserRole.SuperAdmin)
-  @Roles(UserRole.SchoolAdmin)
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Patch('staff/:id')
   @ApiOperation({ summary: 'Update an existing staff/admin user' })
   @ApiResponse({ status: 200, description: 'User successfully updated' })
@@ -109,8 +128,7 @@ export class UsersController {
     return this.usersService.updateStaffUser(authUser, id, dto);
   }
 
-  @Roles(UserRole.SuperAdmin)
-  @Roles(UserRole.SchoolAdmin)
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Delete('staff/:id')
   @ApiOperation({ summary: 'Delete a staff/admin user' })
   @ApiResponse({ status: 200, description: 'User successfully deleted' })
@@ -121,17 +139,5 @@ export class UsersController {
   ): Promise<void> {
     const authUser = req.user;
     return this.usersService.deleteStaffUser(authUser, id);
-  }
-
-  @Patch('profile')
-  @ApiOperation({ summary: 'Update the authenticated user profile' })
-  @ApiResponse({ status: 200, description: 'Profile successfully updated' })
-  @ApiResponse({ status: 400, description: 'Bad request / validation error' })
-  async updateProfile(
-    @Req() req: Request,
-    @Body() dto: UpdateProfileDto,
-  ): Promise<User> {
-    const userId = req.user!.id;
-    return this.usersService.updateProfile(userId, dto);
   }
 }

@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { UserRole } from 'src/common/enums';
 import { PaginationOptions } from 'src/common/interfaces';
+import { School } from 'src/schools/entities/schools.entity';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateStaffUserDto } from './dto/create-staff-dto';
 import { UpdateStaffUserDto } from './dto/update-staff-dto';
-import { User, UserFilters } from './entities/user.entity';
+import { User, UserFilters, UserInfo } from './entities/user.entity';
 
 @Injectable()
 export class UsersRepository {
@@ -63,6 +64,27 @@ export class UsersRepository {
 
     if (error) throw new InternalServerErrorException(error.message);
     return data;
+  }
+
+  async getUserInfo(id: string): Promise<UserInfo | null> {
+    const { data, error } = await this.supabase.client
+      .from('users')
+      .select(`
+        *,
+        school:schools(*)
+      `)
+      .eq('id', id)
+      .maybeSingle();
+
+      if (error) throw new InternalServerErrorException(error.message);
+      if (!data) return null;
+
+      const { school, ...profile } = data;
+
+      return {
+        profile: profile as User,
+        school: school as School | null,
+      };
   }
 
   async createStaffUser(createStaffUserDto: CreateStaffUserDto): Promise<User> {
@@ -191,4 +213,5 @@ export class UsersRepository {
 
     return count ?? 0;
   }
+  
 }
