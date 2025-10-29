@@ -36,4 +36,8 @@ export class StudentsService {
   async deleteStudent(id: string): Promise<void> {
     return this.studentsRepository.deleteStudent(id);
   }
+
+  async resetPin(id: string, pin: string): Promise<void> {
+    return this.studentsRepository.resetPin(id, pin);
+  }
 }

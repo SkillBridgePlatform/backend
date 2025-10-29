@@ -22,6 +22,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserRole } from 'src/common/enums';
 import { CreateStudentDto } from './dto/create-student-dto';
+import { ResetPinDto } from './dto/reset-pin-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
 import { Student } from './entities/students.entity';
 import { StudentsService } from './students.service';
@@ -90,6 +91,18 @@ export class StudentsController {
     @Body() dto: UpdateStudentDto,
   ): Promise<Student> {
     return this.studentsService.updateStudent(id, dto);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
+  @Patch(':id/reset-pin')
+  @ApiOperation({ summary: "Reset a student's PIN" })
+  @ApiResponse({ status: 200, description: 'Student PIN successfully reset' })
+  @ApiResponse({ status: 404, description: 'Student not found' })
+  async resetPin(
+    @Param('id') id: string,
+    @Body() dto: ResetPinDto
+  ): Promise<void> {
+    return await this.studentsService.resetPin(id, dto.pin);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)

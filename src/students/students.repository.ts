@@ -133,4 +133,20 @@ export class StudentsRepository {
     if (error) throw new InternalServerErrorException(error.message);
     return count ?? 0;
   }
+
+  async resetPin(id: string, pin: string): Promise<void> {
+  try {
+    const { data, error } = await this.supabase.client
+      .from('students')
+      .update({ pin })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw new InternalServerErrorException(error.message);
+  } catch (err) {
+    console.error(err);
+    throw new InternalServerErrorException('Failed to reset PIN');
+  }
+}
 }
