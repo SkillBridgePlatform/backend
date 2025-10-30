@@ -41,20 +41,26 @@ export type Database = {
     Tables: {
       schools: {
         Row: {
+          address: string | null
           created_at: string | null
           id: string
+          language: Database["public"]["Enums"]["user_language"]
           name: string
           updated_at: string | null
         }
         Insert: {
+          address?: string | null
           created_at?: string | null
           id?: string
+          language?: Database["public"]["Enums"]["user_language"]
           name: string
           updated_at?: string | null
         }
         Update: {
+          address?: string | null
           created_at?: string | null
           id?: string
+          language?: Database["public"]["Enums"]["user_language"]
           name?: string
           updated_at?: string | null
         }

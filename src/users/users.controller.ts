@@ -51,8 +51,8 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User info found' })
   @ApiResponse({ status: 404, description: 'User info not found' })
   async getUserInfo(@Req() req: Request): Promise<UserInfo> {
-    const authUser = req.user;
-    return await this.usersService.getUserInfo(authUser.id);
+    const userId = req.user!.id;
+    return await this.usersService.getUserInfo(userId);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
