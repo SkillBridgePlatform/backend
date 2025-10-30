@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { UserLanguage } from 'src/common/enums';
 
 export class CreateSchoolDto {
@@ -10,7 +10,8 @@ export class CreateSchoolDto {
 
   @ApiPropertyOptional()
   @IsString()
-  address: string;
+  @IsOptional()
+  address?: string;
 
   @ApiProperty()
   @IsNotEmpty()
