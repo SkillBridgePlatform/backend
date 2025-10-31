@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserRole } from 'src/common/enums';
-import { PaginationOptions } from 'src/common/interfaces';
+import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { CreateStaffUserDto } from './dto/create-staff-dto';
 import { UpdateStaffUserDto } from './dto/update-staff-dto';
 import { User, UserFilters, UserInfo } from './entities/user.entity';
@@ -19,15 +19,17 @@ export class UsersService {
     filters: UserFilters = {},
     pagination: PaginationOptions = {},
     search?: string,
+    sort?: SortOptions,
   ): Promise<{ users: User[]; total: number }> {
-    if (authUser.app_metadata.role == UserRole.SchoolAdmin) {
+    if (authUser.app_metadata.role === UserRole.SchoolAdmin) {
       filters.school_id = authUser.school_id;
-      if (filters.role == UserRole.SuperAdmin) {
+
+      if (filters.role === UserRole.SuperAdmin) {
         throw new ForbiddenException('Cannot fetch SuperAdmins');
       }
     }
 
-    return this.usersRepository.getUsers(filters, pagination, search);
+    return this.usersRepository.getUsers(filters, pagination, search, sort);
   }
 
   async getUser(authUser, id: string): Promise<User> {
@@ -49,8 +51,8 @@ export class UsersService {
   async getUserInfo(id: string): Promise<UserInfo> {
     const userInfo = await this.usersRepository.getUserInfo(id);
     if (!userInfo) {
-      throw new NotFoundException(`User not found`)
-    };
+      throw new NotFoundException(`User not found`);
+    }
 
     return userInfo;
   }

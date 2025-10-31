@@ -20,7 +20,8 @@ import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { UserLanguage, UserRole } from 'src/common/enums';
+import { SortDirection, UserLanguage, UserRole } from 'src/common/enums';
+import { SortOptions } from 'src/common/interfaces';
 import { CreateStaffUserDto } from './dto/create-staff-dto';
 import { UpdateProfileDto } from './dto/update-profile-dto';
 import { UpdateStaffUserDto } from './dto/update-staff-dto';
@@ -58,7 +59,7 @@ export class UsersController {
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Get()
   @ApiOperation({
-    summary: 'Retrieve users with optional filters and pagination',
+    summary: 'Retrieve users with optional filters, pagination, and sorting',
   })
   @ApiResponse({ status: 200, description: 'List of users with total count' })
   @ApiQuery({ name: 'role', required: false })
@@ -70,6 +71,8 @@ export class UsersController {
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'offset', required: false })
   @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'sortBy', required: false })
+  @ApiQuery({ name: 'sortDirection', required: false, enum: ['asc', 'desc'] })
   async getUsers(
     @Req() req: Request,
     @Query('role') role?: UserRole,
@@ -81,14 +84,24 @@ export class UsersController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
     @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
   ): Promise<{ users: User[]; total: number }> {
     const filters = { role, school_id, language, first_name, last_name, email };
     const pagination = {
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
     };
+    const sort: SortOptions = { sortBy, sortDirection };
     const authUser = req.user;
-    return this.usersService.getUsers(authUser, filters, pagination, search);
+
+    return this.usersService.getUsers(
+      authUser,
+      filters,
+      pagination,
+      search,
+      sort,
+    );
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)

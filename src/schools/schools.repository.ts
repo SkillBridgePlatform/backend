@@ -1,7 +1,7 @@
 import { SchoolInsert } from './entities/schools.entity';
 // src/schools/repository/schools-supabase.repository.ts
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { PaginationOptions } from 'src/common/interfaces';
+import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateSchoolDto } from './dto/create-school-dto';
 import { UpdateSchoolDto } from './dto/update-school-dto';
@@ -13,6 +13,7 @@ export class SchoolsRepository {
 
   async getSchools(
     pagination: PaginationOptions = {},
+    sort?: SortOptions,
     search?: string,
   ): Promise<{ schools: School[]; total: number }> {
     let query = this.supabase.client
@@ -23,6 +24,13 @@ export class SchoolsRepository {
     if (search) {
       const searchPattern = `%${search}%`;
       query = query.or(`name.ilike.${searchPattern}`);
+    }
+
+    // Apply sorting (only allow specific fields)
+    const allowedSortFields = ['name', 'created_at'];
+    if (sort?.sortBy && allowedSortFields.includes(sort.sortBy)) {
+      const direction = sort.sortDirection === 'desc' ? false : true;
+      query = query.order(sort.sortBy, { ascending: direction });
     }
 
     // Apply pagination

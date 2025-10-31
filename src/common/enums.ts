@@ -9,3 +9,8 @@ export enum UserLanguage {
   FR = 'FR',
   AR = 'AR',
 }
+
+export enum SortDirection {
+  ASC = 'asc',
+  DESC = 'desc',
+}

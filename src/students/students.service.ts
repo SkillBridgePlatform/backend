@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PaginationOptions } from 'src/common/interfaces';
+import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { CreateStudentDto } from './dto/create-student-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
 import { Student, StudentFilters } from './entities/students.entity';
@@ -11,9 +11,15 @@ export class StudentsService {
   async getStudents(
     filters: StudentFilters = {},
     pagination: PaginationOptions = {},
+    sort: SortOptions = {},
     search?: string,
   ): Promise<{ students: Student[]; total: number }> {
-    return this.studentsRepository.getStudents(filters, pagination, search);
+    return this.studentsRepository.getStudents(
+      filters,
+      pagination,
+      sort,
+      search,
+    );
   }
 
   async getStudent(id: string): Promise<Student> {
