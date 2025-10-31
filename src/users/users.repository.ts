@@ -5,11 +5,12 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { UserRole } from 'src/common/enums';
-import { PaginationOptions } from 'src/common/interfaces';
+import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { School } from 'src/schools/entities/schools.entity';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateStaffUserDto } from './dto/create-staff-dto';
 import { UpdateStaffUserDto } from './dto/update-staff-dto';
-import { User, UserFilters } from './entities/user.entity';
+import { User, UserFilters, UserInfo } from './entities/user.entity';
 
 @Injectable()
 export class UsersRepository {
@@ -19,6 +20,7 @@ export class UsersRepository {
     filters: UserFilters = {},
     pagination: PaginationOptions = {},
     search?: string,
+    sort?: SortOptions,
   ): Promise<{ users: User[]; total: number }> {
     let query = this.supabase.client
       .from('users')
@@ -37,6 +39,13 @@ export class UsersRepository {
       query = query.or(
         `first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},email.ilike.${searchPattern}`,
       );
+    }
+
+    // ✅ Apply sorting
+    const allowedSortFields = ['first_name', 'created_at'];
+    if (sort?.sortBy && allowedSortFields.includes(sort.sortBy)) {
+      const direction = sort.sortDirection === 'desc' ? false : true;
+      query = query.order(sort.sortBy, { ascending: direction });
     }
 
     // Apply pagination
@@ -63,6 +72,29 @@ export class UsersRepository {
 
     if (error) throw new InternalServerErrorException(error.message);
     return data;
+  }
+
+  async getUserInfo(id: string): Promise<UserInfo | null> {
+    const { data, error } = await this.supabase.client
+      .from('users')
+      .select(
+        `
+        *,
+        school:schools(*)
+      `,
+      )
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw new InternalServerErrorException(error.message);
+    if (!data) return null;
+
+    const { school, ...profile } = data;
+
+    return {
+      profile: profile as User,
+      school: school as School | null,
+    };
   }
 
   async createStaffUser(createStaffUserDto: CreateStaffUserDto): Promise<User> {

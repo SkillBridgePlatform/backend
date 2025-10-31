@@ -20,8 +20,10 @@ import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { UserRole } from 'src/common/enums';
+import { SortDirection, UserRole } from 'src/common/enums';
+import { SortOptions } from 'src/common/interfaces';
 import { CreateStudentDto } from './dto/create-student-dto';
+import { ResetPinDto } from './dto/reset-pin-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
 import { Student } from './entities/students.entity';
 import { StudentsService } from './students.service';
@@ -45,18 +47,23 @@ export class StudentsController {
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'offset', required: false })
   @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'sortBy', required: false })
+  @ApiQuery({ name: 'sortDirection', required: false })
   async getStudents(
     @Query('school_id') school_id?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
     @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
   ): Promise<{ students: Student[]; total: number }> {
     const filters = { school_id };
     const pagination = {
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
     };
-    return this.studentsService.getStudents(filters, pagination, search);
+    const sort: SortOptions = { sortBy, sortDirection };
+    return this.studentsService.getStudents(filters, pagination, sort, search);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
@@ -90,6 +97,18 @@ export class StudentsController {
     @Body() dto: UpdateStudentDto,
   ): Promise<Student> {
     return this.studentsService.updateStudent(id, dto);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
+  @Patch(':id/reset-pin')
+  @ApiOperation({ summary: "Reset a student's PIN" })
+  @ApiResponse({ status: 200, description: 'Student PIN successfully reset' })
+  @ApiResponse({ status: 404, description: 'Student not found' })
+  async resetPin(
+    @Param('id') id: string,
+    @Body() dto: ResetPinDto,
+  ): Promise<void> {
+    return await this.studentsService.resetPin(id, dto.pin);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)

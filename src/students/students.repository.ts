@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { PaginationOptions } from 'src/common/interfaces';
+import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateStudentDto } from './dto/create-student-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
@@ -16,6 +16,7 @@ export class StudentsRepository {
   async getStudents(
     filters: StudentFilters = {},
     pagination: PaginationOptions = {},
+    sort: SortOptions = {},
     search?: string,
   ): Promise<{ students: Student[]; total: number }> {
     let query = this.supabase.client
@@ -33,8 +34,15 @@ export class StudentsRepository {
     if (search) {
       const searchPattern = `%${search}%`;
       query = query.or(
-        `first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},email.ilike.${searchPattern}`,
+        `first_name.ilike.${searchPattern},last_name.ilike.${searchPattern},username.ilike.${searchPattern}`,
       );
+    }
+
+    // Apply sorting (only allow specific fields)
+    const allowedSortFields = ['first_name', 'created_at'];
+    if (sort?.sortBy && allowedSortFields.includes(sort.sortBy)) {
+      const direction = sort.sortDirection === 'desc' ? false : true;
+      query = query.order(sort.sortBy, { ascending: direction });
     }
 
     // Apply pagination
@@ -64,18 +72,18 @@ export class StudentsRepository {
   }
 
   async createStudent(createStudentDto: CreateStudentDto): Promise<Student> {
-    const { email, pin, first_name, last_name, school_id, language } =
+    const { username, pin, first_name, last_name, school_id, language } =
       createStudentDto;
 
-    if (!email || !pin)
-      throw new InternalServerErrorException('Email and pin are required');
+    if (!username || !pin)
+      throw new InternalServerErrorException('Username and pin are required');
 
     const supabase = this.supabase.client;
 
     const { data: studentData, error: dbError } = await supabase
       .from('students')
       .insert({
-        email,
+        username,
         pin,
         first_name,
         last_name,
@@ -132,5 +140,21 @@ export class StudentsRepository {
 
     if (error) throw new InternalServerErrorException(error.message);
     return count ?? 0;
+  }
+
+  async resetPin(id: string, pin: string): Promise<void> {
+    try {
+      const { error } = await this.supabase.client
+        .from('students')
+        .update({ pin })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw new InternalServerErrorException(error.message);
+    } catch (err) {
+      console.error(err);
+      throw new InternalServerErrorException('Failed to reset PIN');
+    }
   }
 }

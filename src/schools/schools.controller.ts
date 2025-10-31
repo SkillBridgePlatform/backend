@@ -18,8 +18,8 @@ import {
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { UserRole } from 'src/common/enums';
-import { PaginationOptions } from 'src/common/interfaces';
+import { SortDirection, UserRole } from 'src/common/enums';
+import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { CreateSchoolDto } from './dto/create-school-dto';
 import { UpdateSchoolDto } from './dto/update-school-dto';
 import { School } from './entities/schools.entity';
@@ -40,16 +40,21 @@ export class SchoolsController {
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'offset', required: false })
   @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'sortBy', required: false })
+  @ApiQuery({ name: 'sortDirection', required: false })
   async getSchools(
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
     @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
   ): Promise<{ schools: School[]; total: number }> {
     const pagination: PaginationOptions = {
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
     };
-    return this.schoolsService.getSchools(pagination, search);
+    const sort: SortOptions = { sortBy, sortDirection };
+    return this.schoolsService.getSchools(pagination, sort, search);
   }
 
   @Roles(UserRole.SuperAdmin)
