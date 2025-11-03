@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { UserLanguage } from 'src/common/enums';
+import { Gender, UserLanguage } from 'src/common/enums';
 
 export class CreateStudentDto {
   @ApiProperty()
@@ -29,4 +29,19 @@ export class CreateStudentDto {
   @ApiProperty({ enum: UserLanguage })
   @IsEnum(UserLanguage)
   language: UserLanguage | null;
+
+  @ApiProperty({ enum: Gender })
+  @IsNotEmpty()
+  @IsEnum(Gender)
+  gender: Gender;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  curriculum: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  grade_level: string;
 }

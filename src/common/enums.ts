@@ -10,6 +10,11 @@ export enum UserLanguage {
   AR = 'AR',
 }
 
+export enum Gender {
+  Male = 'Male',
+  Female = 'Female',
+}
+
 export enum SortDirection {
   ASC = 'asc',
   DESC = 'desc',
