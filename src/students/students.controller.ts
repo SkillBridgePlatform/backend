@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,8 +9,11 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -22,6 +26,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { SortOptions } from 'src/common/interfaces';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { CreateStudentDto } from './dto/create-student-dto';
 import { ResetPinDto } from './dto/reset-pin-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
@@ -32,7 +37,29 @@ import { StudentsService } from './students.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('students')
 export class StudentsController {
-  constructor(private readonly studentsService: StudentsService) {}
+  constructor(
+    private readonly studentsService: StudentsService,
+    private readonly fileUploadService: FileUploadService,
+  ) {}
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadImage(@UploadedFile() image: Express.Multer.File) {
+    if (!image) {
+      throw new BadRequestException('No file provided');
+    }
+
+    try {
+      const imageUrl = await this.fileUploadService.uploadFile(
+        image.buffer,
+        image.originalname,
+        'students',
+      );
+      return { imageUrl };
+    } catch {
+      throw new BadRequestException('Failed to upload student image');
+    }
+  }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
   @Get()

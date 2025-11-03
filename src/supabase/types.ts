@@ -74,6 +74,7 @@ export type Database = {
           gender: Database['public']['Enums']['gender'];
           grade_level: string;
           id: string;
+          image_url: string | null;
           language: Database['public']['Enums']['user_language'];
           last_name: string;
           pin: string;
@@ -88,6 +89,7 @@ export type Database = {
           gender?: Database['public']['Enums']['gender'];
           grade_level: string;
           id?: string;
+          image_url?: string | null;
           language?: Database['public']['Enums']['user_language'];
           last_name: string;
           pin: string;
@@ -102,6 +104,7 @@ export type Database = {
           gender?: Database['public']['Enums']['gender'];
           grade_level?: string;
           id?: string;
+          image_url?: string | null;
           language?: Database['public']['Enums']['user_language'];
           last_name?: string;
           pin?: string;

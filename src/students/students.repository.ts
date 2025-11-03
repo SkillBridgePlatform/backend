@@ -82,6 +82,7 @@ export class StudentsRepository {
       gender,
       curriculum,
       grade_level,
+      image_url,
     } = createStudentDto;
 
     if (!username || !pin)
@@ -101,6 +102,7 @@ export class StudentsRepository {
         gender,
         curriculum,
         grade_level,
+        image_url,
       } as StudentInsert)
       .select()
       .single();

@@ -32,4 +32,9 @@ export class UpdateStudentDto {
   @IsOptional()
   @IsString()
   grade_level: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  image_url?: string;
 }

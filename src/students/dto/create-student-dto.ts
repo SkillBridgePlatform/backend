@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Gender, UserLanguage } from 'src/common/enums';
 
 export class CreateStudentDto {
@@ -44,4 +44,9 @@ export class CreateStudentDto {
   @IsNotEmpty()
   @IsString()
   grade_level: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  image_url?: string;
 }
