@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ClassesRepository } from 'src/classes/classes.repository';
 import { UserRole } from 'src/common/enums';
 import { SchoolsRepository } from 'src/schools/schools.repository';
 import { StudentsRepository } from 'src/students/students.repository';
@@ -12,6 +13,7 @@ export class DashboardsService {
     private readonly usersRepository: UsersRepository,
     private readonly schoolsRepository: SchoolsRepository,
     private readonly studentsRepository: StudentsRepository,
+    private readonly classesRepository: ClassesRepository,
   ) {}
 
   async getSuperAdminDashboard(): Promise<SuperAdminDashboard> {
@@ -38,6 +40,8 @@ export class DashboardsService {
     const promiseList = [
       this.usersRepository.countUsersByRole(UserRole.Teacher, schoolId),
       this.studentsRepository.countStudentsBySchool(schoolId),
+      this.studentsRepository.countStudentsBySchool(schoolId),
+      this.classesRepository.countClassesBySchool(schoolId),
     ];
 
     if (authUser.app_metadata.role == UserRole.SuperAdmin) {
@@ -45,7 +49,7 @@ export class DashboardsService {
         this.usersRepository.countUsersByRole(UserRole.SchoolAdmin, schoolId),
       );
     }
-    const [totalTeachers, totalStudents, totalSchoolAdmins] =
+    const [totalTeachers, totalStudents, totalSchoolAdmins, totalClasses] =
       await Promise.all(promiseList);
 
     const school = await this.schoolsRepository.getSchoolById(schoolId);
@@ -56,6 +60,7 @@ export class DashboardsService {
       totalSchoolAdmins,
       totalTeachers,
       totalStudents,
+      totalClasses,
     };
   }
 }

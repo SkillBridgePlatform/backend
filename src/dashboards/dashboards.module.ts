@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ClassesRepository } from 'src/classes/classes.repository';
 import { SchoolsRepository } from 'src/schools/schools.repository';
 import { StudentsRepository } from 'src/students/students.repository';
 import { UsersRepository } from 'src/users/users.repository';
@@ -12,6 +13,7 @@ import { DashboardsService } from './dashboards.service';
     StudentsRepository,
     UsersRepository,
     SchoolsRepository,
+    ClassesRepository,
   ],
   exports: [DashboardsService],
 })

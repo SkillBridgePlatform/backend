@@ -137,10 +137,11 @@ export class ClassesRepository {
     if (dbError) throw new InternalServerErrorException(dbError.message);
   }
 
-  async countClasses(): Promise<number> {
+  async countClassesBySchool(schoolId: string): Promise<number> {
     const { count, error } = await this.supabase.client
       .from('classes')
-      .select('id', { count: 'exact', head: true });
+      .select('id', { count: 'exact', head: true })
+      .eq('school_id', schoolId);
 
     if (error) throw new InternalServerErrorException(error.message);
 
