@@ -72,6 +72,41 @@ export class ClassesController {
     );
   }
 
+  @Get('teacher')
+  @ApiOperation({
+    summary:
+      'Retrieve classes assigned to a specific teacher with optional pagination and search',
+  })
+  @ApiResponse({ status: 200, description: 'List of classes with total count' })
+  @ApiQuery({ name: 'teacher_id', required: true, description: 'Teacher UUID' })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'sortBy', required: false })
+  @ApiQuery({ name: 'sortDirection', required: false })
+  async getClassesForTeacher(
+    @Req() req: Request,
+    @Query('teacher_id') teacher_id: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
+  ): Promise<{ classes: Class[]; total: number }> {
+    const pagination: PaginationOptions = {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+    const sort: SortOptions = { sortBy, sortDirection };
+
+    return this.classesService.getClassesForTeacher(
+      teacher_id,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a class by ID' })
   @ApiResponse({ status: 200, description: 'Class found' })
@@ -80,7 +115,7 @@ export class ClassesController {
     return this.classesService.getClass(id);
   }
 
-  @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Post()
   @ApiOperation({ summary: 'Create a new class' })
   @ApiResponse({ status: 201, description: 'Class successfully created' })
@@ -88,7 +123,7 @@ export class ClassesController {
     return this.classesService.createClass(dto);
   }
 
-  @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Patch(':id')
   @ApiOperation({ summary: 'Update an existing class' })
   @ApiResponse({ status: 200, description: 'Class successfully updated' })
@@ -100,7 +135,7 @@ export class ClassesController {
     return this.classesService.updateClass(id, dto);
   }
 
-  @Roles(UserRole.SuperAdmin)
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a class' })
   @ApiResponse({ status: 200, description: 'Class successfully deleted' })

@@ -31,6 +31,20 @@ export class ClassesService {
     return this.classesRepository.getClasses(filters, pagination, sort, search);
   }
 
+  async getClassesForTeacher(
+    teacherId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ classes: Class[]; total: number }> {
+    return this.classesRepository.getClassesForTeacher(
+      teacherId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
   async getClass(id: string): Promise<Class | null> {
     return this.classesRepository.getClassById(id);
   }
