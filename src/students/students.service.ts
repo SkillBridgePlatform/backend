@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { CreateStudentDto } from './dto/create-student-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
 import { Student, StudentFilters } from './entities/students.entity';
 import { StudentsRepository } from './students.repository';
 @Injectable()
 export class StudentsService {
-  constructor(private readonly studentsRepository: StudentsRepository) {}
+  constructor(
+    private readonly fileUploadService: FileUploadService,
+    private readonly studentsRepository: StudentsRepository,
+  ) {}
 
   async getStudents(
     filters: StudentFilters = {},
@@ -40,6 +44,16 @@ export class StudentsService {
   }
 
   async deleteStudent(id: string): Promise<void> {
+    const student = await this.studentsRepository.getStudentById(id);
+
+    if (student?.image_url) {
+      try {
+        await this.fileUploadService.deleteFile(student.image_url);
+      } catch (err) {
+        console.error('Failed to delete student image:', err);
+      }
+    }
+
     return this.studentsRepository.deleteStudent(id);
   }
 
