@@ -49,42 +49,6 @@ export class ClassesRepository {
     return { classes: (data ?? []) as Class[], total: count ?? 0 };
   }
 
-  async getClassesForTeacher(
-    teacherId: string,
-    pagination: PaginationOptions = {},
-    sort?: SortOptions,
-    search?: string,
-  ): Promise<{ classes: Class[]; total: number }> {
-    let query = this.supabase.client
-      .from('class_teachers')
-      .select('classes(*), class_id', { count: 'exact' })
-      .eq('teacher_id', teacherId);
-
-    if (search) {
-      const searchPattern = `%${search}%`;
-      query = query.ilike('classes.name', searchPattern);
-    }
-
-    const allowedSortFields = ['classes.name', 'classes.created_at'];
-    if (sort?.sortBy && allowedSortFields.includes(`classes.${sort.sortBy}`)) {
-      const ascending = sort.sortDirection !== 'desc';
-      query = query.order(`classes.${sort.sortBy}`, { ascending });
-    }
-
-    if (pagination.limit !== undefined) query = query.limit(pagination.limit);
-    if (pagination.offset !== undefined && pagination.limit !== undefined)
-      query = query.range(
-        pagination.offset,
-        pagination.offset + pagination.limit - 1,
-      );
-
-    const { data, error, count } = await query;
-    if (error) throw new Error(error.message);
-
-    const classes = (data ?? []).map((row) => row.classes as Class);
-    return { classes, total: count ?? 0 };
-  }
-
   async getClassById(id: string): Promise<Class | null> {
     const { data, error } = await this.supabase.client
       .from('classes')

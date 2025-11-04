@@ -143,4 +143,26 @@ export class ClassesController {
   async deleteClass(@Param('id') id: string): Promise<void> {
     return this.classesService.deleteClass(id);
   }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Post(':id/students')
+  @ApiOperation({ summary: 'Assign students to a class' })
+  @ApiResponse({ status: 200, description: 'Students successfully assigned' })
+  async assignStudentsToClass(
+    @Param('id') classId: string,
+    @Body('studentIds') studentIds: string[],
+  ): Promise<void> {
+    return this.classesService.assignStudentsToClass(classId, studentIds);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Post(':id/teachers')
+  @ApiOperation({ summary: 'Assign teachers to a class' })
+  @ApiResponse({ status: 200, description: 'Teachers successfully assigned' })
+  async assignTeachersToClass(
+    @Param('id') classId: string,
+    @Body('teacherIds') teacherIds: string[],
+  ): Promise<void> {
+    return this.classesService.assignTeachersToClass(classId, teacherIds);
+  }
 }
