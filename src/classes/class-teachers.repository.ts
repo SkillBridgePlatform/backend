@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { SupabaseService } from 'src/supabase/supabase.service';
+import { User } from 'src/users/entities/user.entity';
 import { Class, ClassTeacherInsert } from './entities/classes.entity';
 
 @Injectable()
@@ -62,5 +63,56 @@ export class ClassTeachersRepository {
       console.error('Failed to assign teachers to class:', error);
       throw new Error(error.message);
     }
+  }
+
+  async getTeachersForClass(
+    classId: string,
+    pagination: PaginationOptions = {},
+    sort?: SortOptions,
+    search?: string,
+  ): Promise<{ teachers: User[]; total: number }> {
+    const { data, error } = await this.supabase.client
+      .from('class_teachers')
+      .select('users(*), teacher_id', { count: 'exact' })
+      .eq('class_id', classId);
+
+    if (error) throw new Error(error.message);
+
+    let teachers = (data ?? []).map((row) => row.users);
+
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      teachers = teachers.filter(
+        (u) =>
+          u.first_name?.toLowerCase().includes(lowerSearch) ||
+          u.last_name?.toLowerCase().includes(lowerSearch) ||
+          u.email?.toLowerCase().includes(lowerSearch),
+      );
+    }
+
+    const allowedSortFields = ['first_name', 'created_at'];
+    if (sort?.sortBy && allowedSortFields.includes(sort.sortBy)) {
+      const sortBy = sort.sortBy;
+      const ascending = sort.sortDirection !== 'desc';
+      teachers.sort((a, b) => {
+        const aVal = (a as any)[sortBy] ?? '';
+        const bVal = (b as any)[sortBy] ?? '';
+        if (aVal < bVal) return ascending ? -1 : 1;
+        if (aVal > bVal) return ascending ? 1 : -1;
+        return 0;
+      });
+    }
+
+    const total = teachers.length;
+    if (pagination.offset !== undefined && pagination.limit !== undefined) {
+      teachers = teachers.slice(
+        pagination.offset,
+        pagination.offset + pagination.limit,
+      );
+    } else if (pagination.limit !== undefined) {
+      teachers = teachers.slice(0, pagination.limit);
+    }
+
+    return { teachers, total };
   }
 }

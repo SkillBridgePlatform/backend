@@ -16,4 +16,4 @@ export interface UserFilters {
 export type UserInfo = {
   profile: User;
   school: School | null;
-}
+};

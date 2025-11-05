@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { Student } from 'src/students/entities/students.entity';
+import { User } from 'src/users/entities/user.entity';
 import { ClassStudentsRepository } from './class-students.repository';
 import { ClassTeachersRepository } from './class-teachers.repository';
 import { ClassesRepository } from './classes.repository';
@@ -84,6 +86,34 @@ export class ClassesService {
     return await this.classTeachersRepository.assignTeachersToClass(
       classId,
       teacherIds,
+    );
+  }
+
+  async getTeachersForClass(
+    classId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ teachers: User[]; total: number }> {
+    return this.classTeachersRepository.getTeachersForClass(
+      classId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
+  async getStudentsForClass(
+    classId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ students: Student[]; total: number }> {
+    return this.classStudentsRepository.getStudentsForClass(
+      classId,
+      pagination,
+      sort,
+      search,
     );
   }
 }

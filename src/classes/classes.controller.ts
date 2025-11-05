@@ -107,6 +107,110 @@ export class ClassesController {
     );
   }
 
+  @Get(':classId/teachers')
+  @ApiOperation({
+    summary:
+      'Retrieve all teachers assigned to a specific class with optional pagination, search, and sorting',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of teachers with total count',
+  })
+  @ApiQuery({ name: 'limit', required: false, description: 'Pagination limit' })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    description: 'Pagination offset',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Search by name or email',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    description: 'Field to sort by (name or created_at)',
+  })
+  @ApiQuery({
+    name: 'sortDirection',
+    required: false,
+    description: 'Sort direction: asc or desc',
+  })
+  async getTeachersForClass(
+    @Param('classId') classId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
+  ): Promise<{ teachers: any[]; total: number }> {
+    const pagination: PaginationOptions = {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+    const sort: SortOptions = { sortBy, sortDirection };
+
+    return this.classesService.getTeachersForClass(
+      classId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
+  @Get(':classId/students')
+  @ApiOperation({
+    summary:
+      'Retrieve all students assigned to a specific class with optional pagination, search, and sorting',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of students with total count',
+  })
+  @ApiQuery({ name: 'limit', required: false, description: 'Pagination limit' })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    description: 'Pagination offset',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Search by name or email',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    description: 'Field to sort by (name or created_at)',
+  })
+  @ApiQuery({
+    name: 'sortDirection',
+    required: false,
+    description: 'Sort direction: asc or desc',
+  })
+  async getStudentsForClass(
+    @Param('classId') classId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
+  ): Promise<{ students: any[]; total: number }> {
+    const pagination: PaginationOptions = {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+    const sort: SortOptions = { sortBy, sortDirection };
+
+    return this.classesService.getStudentsForClass(
+      classId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a class by ID' })
   @ApiResponse({ status: 200, description: 'Class found' })
