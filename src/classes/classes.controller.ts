@@ -25,6 +25,7 @@ import { UpdateClassDto } from 'src/classes/dto/update-class-dto';
 import { Class } from 'src/classes/entities/classes.entity';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { User } from 'src/users/entities/user.entity';
 import { ClassesService } from './classes.service';
 
 @ApiBearerAuth('access-token')
@@ -211,6 +212,21 @@ export class ClassesController {
     );
   }
 
+  @Get(':classId/available-teachers')
+  @ApiOperation({
+    summary:
+      'Retrieve all available teachers (users with role = teacher) who are not yet assigned to a specific class, with optional pagination, search, and sorting',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of available teachers with total count',
+  })
+  async getAvailableTeachersForClass(
+    @Param('classId') classId: string,
+  ): Promise<Partial<User>[]> {
+    return this.classesService.getAvailableTeachersForClass(classId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a class by ID' })
   @ApiResponse({ status: 200, description: 'Class found' })
@@ -268,5 +284,16 @@ export class ClassesController {
     @Body('teacherIds') teacherIds: string[],
   ): Promise<void> {
     return this.classesService.assignTeachersToClass(classId, teacherIds);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Delete(':id/teachers')
+  @ApiOperation({ summary: 'Unassign teachers from a class' })
+  @ApiResponse({ status: 200, description: 'Teachers successfully unassigned' })
+  async unassignTeachersFromClass(
+    @Param('id') classId: string,
+    @Body('teacherIds') teacherIds: string[],
+  ): Promise<void> {
+    return this.classesService.unassignTeachersFromClass(classId, teacherIds);
   }
 }

@@ -116,4 +116,20 @@ export class ClassesService {
       search,
     );
   }
+
+  async getAvailableTeachersForClass(
+    classId: string,
+  ): Promise<Partial<User>[]> {
+    return this.classTeachersRepository.getAvailableTeachersForClass(classId);
+  }
+
+  async unassignTeachersFromClass(
+    classId: string,
+    teacherIds: string[],
+  ): Promise<void> {
+    return this.classTeachersRepository.unassignTeachersFromClass(
+      classId,
+      teacherIds,
+    );
+  }
 }

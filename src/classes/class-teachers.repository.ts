@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { User } from 'src/users/entities/user.entity';
@@ -114,5 +115,51 @@ export class ClassTeachersRepository {
     }
 
     return { teachers, total };
+  }
+
+  async getAvailableTeachersForClass(
+    classId: string,
+  ): Promise<Partial<User>[]> {
+    const { data: allTeachers, error: allTeachersErr } =
+      await this.supabase.client
+        .from('users')
+        .select('id, first_name, last_name, email, role')
+        .eq('role', UserRole.Teacher);
+
+    if (allTeachersErr) throw new Error(allTeachersErr.message);
+
+    const { data: assignedTeachers, error: assignedErr } =
+      await this.supabase.client
+        .from('class_teachers')
+        .select('teacher_id')
+        .eq('class_id', classId);
+
+    if (assignedErr) throw new Error(assignedErr.message);
+
+    const assignedIds = new Set(assignedTeachers.map((t) => t.teacher_id));
+
+    const availableTeachers = allTeachers.filter(
+      (teacher) => !assignedIds.has(teacher.id),
+    );
+
+    return availableTeachers;
+  }
+
+  async unassignTeachersFromClass(
+    classId: string,
+    teacherIds: string[],
+  ): Promise<void> {
+    if (teacherIds.length === 0) return;
+
+    const { error } = await this.supabase.client
+      .from('class_teachers')
+      .delete()
+      .eq('class_id', classId)
+      .in('teacher_id', teacherIds);
+
+    if (error) {
+      console.error('Failed to unassign teachers from class:', error);
+      throw new Error(error.message);
+    }
   }
 }
