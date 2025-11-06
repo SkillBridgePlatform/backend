@@ -1,6 +1,7 @@
 // src/auth/admin-jwt.strategy.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { SupabaseService } from '../../supabase/supabase.service';
 
@@ -18,17 +19,20 @@ export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
     });
   }
 
-  async validate(payload: any) {
-    const token = payload?.token;
-    if (!token) throw new UnauthorizedException('Token not provided');
+  async validate(req: Request) {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new UnauthorizedException('Token not provided');
+    }
 
     const {
       data: { user },
       error,
     } = await this.supabaseService.client.auth.getUser(token);
 
-    if (error || !user)
+    if (error || !user) {
       throw new UnauthorizedException('Invalid or expired token');
+    }
 
     return user;
   }
