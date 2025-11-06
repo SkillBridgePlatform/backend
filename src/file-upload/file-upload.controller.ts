@@ -1,13 +1,13 @@
 import { Controller, Delete, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { AdminJwtGuard } from 'src/auth/guards/admin-jwt.guard';
+import { AdminJwtAuthGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserRole } from 'src/common/enums';
 import { FileUploadService } from './file-upload.service';
 
 @ApiBearerAuth('access-token')
-@UseGuards(AdminJwtGuard, RolesGuard)
+@UseGuards(AdminJwtAuthGuard, RolesGuard)
 @Controller('file-upload')
 export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}

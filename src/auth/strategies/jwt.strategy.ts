@@ -12,17 +12,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
       secretOrKey: secret,
       passReqToCallback: true,
     });
   }
 
-  async validate(payload: any) {
-    const student = await this.studentsService.getStudentById(
-      payload.studentId,
-    );
+  async validate(req: Request, payload: any) {
+    const studentId = payload.studentId;
+    if (!studentId) throw new UnauthorizedException('Invalid token');
+
+    const student = await this.studentsService.getStudentById(studentId);
     if (!student) throw new UnauthorizedException('Invalid or expired token');
+
     return student;
   }
 }

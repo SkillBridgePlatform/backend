@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AdminAuthModule } from './auth/admin-auth.module';
 import { AuthModule } from './auth/auth.module';
 import { ClassesModule } from './classes/classes.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
@@ -13,15 +14,16 @@ import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    AuthModule,
     SupabaseModule,
     HealthModule,
     FileUploadModule,
     UsersModule,
-    StudentsModule,
     ClassesModule,
     SchoolsModule,
     DashboardsModule,
+    StudentsModule,
+    AuthModule,
+    AdminAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

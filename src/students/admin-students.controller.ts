@@ -23,7 +23,7 @@ import {
 } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { AdminJwtGuard } from 'src/auth/guards/admin-jwt.guard';
+import { AdminJwtAuthGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { SortOptions } from 'src/common/interfaces';
@@ -36,8 +36,8 @@ import { StudentsService } from './students.service';
 
 @ApiTags('Admin - Students')
 @ApiBearerAuth('access-token')
-@UseGuards(AdminJwtGuard, RolesGuard)
-@Controller('students')
+@UseGuards(AdminJwtAuthGuard, RolesGuard)
+@Controller('/admin/students')
 export class AdminStudentsController {
   constructor(
     private readonly studentsService: StudentsService,

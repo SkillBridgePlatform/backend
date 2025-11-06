@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { CreateStudentDto } from './dto/create-student-dto';
@@ -12,6 +16,15 @@ export class StudentsService {
     private readonly studentsRepository: StudentsRepository,
   ) {}
 
+  async validateStudent(username: string, pin: string): Promise<Student> {
+    const student =
+      await this.studentsRepository.getStudentByUsername(username);
+    if (!student || student.pin !== pin) {
+      throw new UnauthorizedException('Invalid username or pin');
+    }
+    return student;
+  }
+
   async getStudents(
     filters: StudentFilters = {},
     pagination: PaginationOptions = {},
@@ -24,6 +37,18 @@ export class StudentsService {
       sort,
       search,
     );
+  }
+
+  async getProfile(studentId: string): Promise<Student> {
+    const student = await this.studentsRepository.getStudentById(studentId);
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    const safeStudent = { ...student };
+    delete (safeStudent as any).pin;
+    return safeStudent as Student;
   }
 
   async getStudentById(id: string): Promise<Student> {
