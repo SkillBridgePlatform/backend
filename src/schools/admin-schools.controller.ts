@@ -14,6 +14,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -25,10 +26,11 @@ import { UpdateSchoolDto } from './dto/update-school-dto';
 import { School } from './entities/schools.entity';
 import { SchoolsService } from './schools.service';
 
+@ApiTags('Admin - Schools')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('schools')
-export class SchoolsController {
+export class AdminSchoolsController {
   constructor(private readonly schoolsService: SchoolsService) {}
 
   @Roles(UserRole.SuperAdmin)

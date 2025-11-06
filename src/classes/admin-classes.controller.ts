@@ -10,7 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -44,10 +44,11 @@ import { ClassesService } from './classes.service';
 import { CreateClassDto } from './dto/create-class-dto';
 import { UpdateClassDto } from './dto/update-class-dto';
 
+@ApiTags('Admin - Classes')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('classes')
-export class ClassesController {
+export class AdminClassesController {
   constructor(private readonly classesService: ClassesService) {}
 
   //#region Class CRUD

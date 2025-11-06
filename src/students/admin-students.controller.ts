@@ -19,6 +19,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -33,10 +34,11 @@ import { UpdateStudentDto } from './dto/update-student-dto';
 import { Student } from './entities/students.entity';
 import { StudentsService } from './students.service';
 
+@ApiTags('Admin - Students')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('students')
-export class StudentsController {
+export class AdminStudentsController {
   constructor(
     private readonly studentsService: StudentsService,
     private readonly fileUploadService: FileUploadService,

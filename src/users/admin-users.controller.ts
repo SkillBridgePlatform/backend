@@ -15,6 +15,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -28,10 +29,11 @@ import { UpdateStaffUserDto } from './dto/update-staff-dto';
 import { User, UserInfo } from './entities/user.entity';
 import { UsersService } from './users.service';
 
+@ApiTags('Admin - Users')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
-export class UsersController {
+export class AdminUsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Patch('profile')

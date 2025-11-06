@@ -3,11 +3,11 @@ import { ClassesRepository } from 'src/classes/classes.repository';
 import { SchoolsRepository } from 'src/schools/schools.repository';
 import { StudentsRepository } from 'src/students/students.repository';
 import { UsersRepository } from 'src/users/users.repository';
-import { DashboardsController } from './dashboards.controller';
+import { AdminDashboardsController } from './admin-dashboards.controller';
 import { DashboardsService } from './dashboards.service';
 
 @Module({
-  controllers: [DashboardsController],
+  controllers: [AdminDashboardsController],
   providers: [
     DashboardsService,
     StudentsRepository,
