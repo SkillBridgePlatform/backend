@@ -1,16 +1,14 @@
+// src/students/jwt.strategy.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { SupabaseService } from '../supabase/supabase.service';
+import { StudentsService } from 'src/students/students.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly supabaseService: SupabaseService) {
-    const secret = process.env.SUPABASE_JWT_SECRET;
-    if (!secret) {
-      throw new Error('SUPABASE_JWT_SECRET is not defined');
-    }
+  constructor(private readonly studentsService: StudentsService) {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error('JWT_SECRET is not defined');
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -20,21 +18,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(req: Request) {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      throw new UnauthorizedException('Token not provided');
-    }
-
-    const {
-      data: { user },
-      error,
-    } = await this.supabaseService.client.auth.getUser(token);
-
-    if (error || !user) {
-      throw new UnauthorizedException('Invalid or expired token');
-    }
-
-    return user;
+  async validate(payload: any) {
+    const student = await this.studentsService.getStudentById(
+      payload.studentId,
+    );
+    if (!student) throw new UnauthorizedException('Invalid or expired token');
+    return student;
   }
 }

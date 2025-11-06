@@ -26,7 +26,7 @@ export class StudentsService {
     );
   }
 
-  async getStudent(id: string): Promise<Student> {
+  async getStudentById(id: string): Promise<Student> {
     const student = await this.studentsRepository.getStudentById(id);
     if (!student) {
       throw new NotFoundException(`Student not found`);

@@ -23,7 +23,7 @@ import {
 } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AdminJwtGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { SortOptions } from 'src/common/interfaces';
@@ -36,7 +36,7 @@ import { StudentsService } from './students.service';
 
 @ApiTags('Admin - Students')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(AdminJwtGuard, RolesGuard)
 @Controller('students')
 export class AdminStudentsController {
   constructor(
@@ -100,8 +100,8 @@ export class AdminStudentsController {
   @ApiOperation({ summary: 'Retrieve a student by ID' })
   @ApiResponse({ status: 200, description: 'Student found' })
   @ApiResponse({ status: 404, description: 'Student not found' })
-  async getStudent(@Param('id') id: string): Promise<Student> {
-    return this.studentsService.getStudent(id);
+  async getStudentById(@Param('id') id: string): Promise<Student> {
+    return this.studentsService.getStudentById(id);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)

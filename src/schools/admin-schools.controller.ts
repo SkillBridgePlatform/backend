@@ -17,7 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AdminJwtGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
@@ -28,7 +28,7 @@ import { SchoolsService } from './schools.service';
 
 @ApiTags('Admin - Schools')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(AdminJwtGuard, RolesGuard)
 @Controller('schools')
 export class AdminSchoolsController {
   constructor(private readonly schoolsService: SchoolsService) {}

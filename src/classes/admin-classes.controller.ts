@@ -13,7 +13,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AdminJwtGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Class } from 'src/classes/entities/classes.entity';
 import { SortDirection, UserRole } from 'src/common/enums';
@@ -46,7 +46,7 @@ import { UpdateClassDto } from './dto/update-class-dto';
 
 @ApiTags('Admin - Classes')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(AdminJwtGuard, RolesGuard)
 @Controller('classes')
 export class AdminClassesController {
   constructor(private readonly classesService: ClassesService) {}
