@@ -18,6 +18,8 @@ export class ClassesService {
     private readonly classStudentsRepository: ClassStudentsRepository,
   ) {}
 
+  // Class CRUD
+
   async getClasses(
     authUser,
     filters: ClassFilters = {},
@@ -39,20 +41,6 @@ export class ClassesService {
     return this.classesRepository.getClasses(filters, pagination, sort, search);
   }
 
-  async getClassesForTeacher(
-    teacherId: string,
-    pagination: PaginationOptions = {},
-    sort: SortOptions = {},
-    search?: string,
-  ): Promise<{ classes: Class[]; total: number }> {
-    return this.classTeachersRepository.getClassesForTeacher(
-      teacherId,
-      pagination,
-      sort,
-      search,
-    );
-  }
-
   async getClass(id: string): Promise<Class | null> {
     return this.classesRepository.getClassById(id);
   }
@@ -69,6 +57,8 @@ export class ClassesService {
     await this.classesRepository.deleteClass(id);
   }
 
+  // Class Students
+
   async assignStudentsToClass(
     classId: string,
     studentIds: string[],
@@ -78,6 +68,36 @@ export class ClassesService {
       studentIds,
     );
   }
+
+  async getStudentsForClass(
+    classId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ students: Student[]; total: number }> {
+    return this.classStudentsRepository.getStudentsForClass(
+      classId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
+  async getAvailableStudentsForClass(classId: string): Promise<Student[]> {
+    return this.classStudentsRepository.getAvailableStudentsForClass(classId);
+  }
+
+  async unassignStudentsFromClass(
+    classId: string,
+    studentIds: string[],
+  ): Promise<void> {
+    return this.classStudentsRepository.unassignStudentsFromClass(
+      classId,
+      studentIds,
+    );
+  }
+
+  // Class Teachers
 
   async assignTeachersToClass(
     classId: string,
@@ -103,20 +123,6 @@ export class ClassesService {
     );
   }
 
-  async getStudentsForClass(
-    classId: string,
-    pagination: PaginationOptions = {},
-    sort: SortOptions = {},
-    search?: string,
-  ): Promise<{ students: Student[]; total: number }> {
-    return this.classStudentsRepository.getStudentsForClass(
-      classId,
-      pagination,
-      sort,
-      search,
-    );
-  }
-
   async getAvailableTeachersForClass(
     classId: string,
   ): Promise<Partial<User>[]> {
@@ -130,6 +136,20 @@ export class ClassesService {
     return this.classTeachersRepository.unassignTeachersFromClass(
       classId,
       teacherIds,
+    );
+  }
+
+  async getClassesForTeacher(
+    teacherId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ classes: Class[]; total: number }> {
+    return this.classTeachersRepository.getClassesForTeacher(
+      teacherId,
+      pagination,
+      sort,
+      search,
     );
   }
 }

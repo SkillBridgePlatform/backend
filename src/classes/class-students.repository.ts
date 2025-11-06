@@ -79,4 +79,47 @@ export class ClassStudentsRepository {
 
     return { students, total };
   }
+
+  async getAvailableStudentsForClass(classId: string): Promise<Student[]> {
+    const { data: allStudents, error: allStudentsErr } =
+      await this.supabase.client
+        .from('students')
+        .select('*', { count: 'exact' });
+
+    if (allStudentsErr) throw new Error(allStudentsErr.message);
+
+    const { data: assignedStudents, error: assignedErr } =
+      await this.supabase.client
+        .from('class_students')
+        .select('student_id')
+        .eq('class_id', classId);
+
+    if (assignedErr) throw new Error(assignedErr.message);
+
+    const assignedIds = new Set(assignedStudents.map((t) => t.student_id));
+
+    const availableStudents = allStudents.filter(
+      (student) => !assignedIds.has(student.id),
+    );
+
+    return availableStudents;
+  }
+
+  async unassignStudentsFromClass(
+    classId: string,
+    studentIds: string[],
+  ): Promise<void> {
+    if (studentIds.length === 0) return;
+
+    const { error } = await this.supabase.client
+      .from('class_students')
+      .delete()
+      .eq('class_id', classId)
+      .in('student_id', studentIds);
+
+    if (error) {
+      console.error('Failed to unassign students from class:', error);
+      throw new Error(error.message);
+    }
+  }
 }

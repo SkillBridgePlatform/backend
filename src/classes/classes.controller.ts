@@ -10,23 +10,39 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { CreateClassDto } from 'src/classes/dto/create-class-dto';
-import { UpdateClassDto } from 'src/classes/dto/update-class-dto';
 import { Class } from 'src/classes/entities/classes.entity';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import {
+  AssignStudentsToClassDocs,
+  GetAvailableStudentsForClassDocs,
+  GetStudentsForClassDocs,
+  UnassignStudentsFromClassDocs,
+} from 'src/docs/classes/class-students.docs';
+import {
+  AssignTeachersToClassDocs,
+  GetAvailableTeachersForClassDocs,
+  GetClassesForTeacherDocs,
+  GetTeachersForClassDocs,
+  UnassignTeachersFromClassDocs,
+} from 'src/docs/classes/class-teachers.docs';
+import {
+  CreateClassDocs,
+  DeleteClassDocs,
+  GetClassByIdDocs,
+  GetClassesDocs,
+  UpdateClassDocs,
+} from 'src/docs/classes/classes.docs';
+import { Student } from 'src/students/entities/students.entity';
 import { User } from 'src/users/entities/user.entity';
 import { ClassesService } from './classes.service';
+import { CreateClassDto } from './dto/create-class-dto';
+import { UpdateClassDto } from './dto/update-class-dto';
 
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -34,18 +50,11 @@ import { ClassesService } from './classes.service';
 export class ClassesController {
   constructor(private readonly classesService: ClassesService) {}
 
+  //#region Class CRUD
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Get()
-  @ApiOperation({
-    summary: 'Retrieve classes with optional pagination and search',
-  })
-  @ApiResponse({ status: 200, description: 'List of classes with total count' })
-  @ApiQuery({ name: 'school_id', required: false })
-  @ApiQuery({ name: 'teacher_id', required: false })
-  @ApiQuery({ name: 'limit', required: false })
-  @ApiQuery({ name: 'offset', required: false })
-  @ApiQuery({ name: 'search', required: false })
-  @ApiQuery({ name: 'sortBy', required: false })
-  @ApiQuery({ name: 'sortDirection', required: false })
+  @GetClassesDocs()
   async getClasses(
     @Req() req: Request,
     @Query('school_id') school_id?: string,
@@ -73,18 +82,98 @@ export class ClassesController {
     );
   }
 
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
+  @Get(':classId')
+  @GetClassByIdDocs()
+  async getClass(@Param('classId') classId: string): Promise<Class | null> {
+    return this.classesService.getClass(classId);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Post()
+  @CreateClassDocs()
+  async createClass(@Body() dto: CreateClassDto): Promise<Class> {
+    return this.classesService.createClass(dto);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Patch(':classId')
+  @UpdateClassDocs()
+  async updateClass(
+    @Param('classId') classId: string,
+    @Body() dto: UpdateClassDto,
+  ): Promise<Class> {
+    return this.classesService.updateClass(classId, dto);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Delete(':classId')
+  @DeleteClassDocs()
+  async deleteClass(@Param('classId') classId: string): Promise<void> {
+    return this.classesService.deleteClass(classId);
+  }
+
+  //#endregion
+
+  //#region Class Teachers
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Get(':classId/teachers')
+  @GetTeachersForClassDocs()
+  async getTeachersForClass(
+    @Param('classId') classId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
+  ): Promise<{ teachers: any[]; total: number }> {
+    const pagination: PaginationOptions = {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+    const sort: SortOptions = { sortBy, sortDirection };
+
+    return this.classesService.getTeachersForClass(
+      classId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Get(':classId/available-teachers')
+  @GetAvailableTeachersForClassDocs()
+  async getAvailableTeachersForClass(
+    @Param('classId') classId: string,
+  ): Promise<Partial<User>[]> {
+    return this.classesService.getAvailableTeachersForClass(classId);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Post(':classId/teachers')
+  @AssignTeachersToClassDocs()
+  async assignTeachersToClass(
+    @Param('classId') classId: string,
+    @Body('teacherIds') teacherIds: string[],
+  ): Promise<void> {
+    return this.classesService.assignTeachersToClass(classId, teacherIds);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Delete(':classId/teachers')
+  @UnassignTeachersFromClassDocs()
+  async unassignTeachersFromClass(
+    @Param('classId') classId: string,
+    @Body('teacherIds') teacherIds: string[],
+  ): Promise<void> {
+    return this.classesService.unassignTeachersFromClass(classId, teacherIds);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Get('teacher')
-  @ApiOperation({
-    summary:
-      'Retrieve classes assigned to a specific teacher with optional pagination and search',
-  })
-  @ApiResponse({ status: 200, description: 'List of classes with total count' })
-  @ApiQuery({ name: 'teacher_id', required: true, description: 'Teacher UUID' })
-  @ApiQuery({ name: 'limit', required: false })
-  @ApiQuery({ name: 'offset', required: false })
-  @ApiQuery({ name: 'search', required: false })
-  @ApiQuery({ name: 'sortBy', required: false })
-  @ApiQuery({ name: 'sortDirection', required: false })
+  @GetClassesForTeacherDocs()
   async getClassesForTeacher(
     @Req() req: Request,
     @Query('teacher_id') teacher_id: string,
@@ -108,88 +197,13 @@ export class ClassesController {
     );
   }
 
-  @Get(':classId/teachers')
-  @ApiOperation({
-    summary:
-      'Retrieve all teachers assigned to a specific class with optional pagination, search, and sorting',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of teachers with total count',
-  })
-  @ApiQuery({ name: 'limit', required: false, description: 'Pagination limit' })
-  @ApiQuery({
-    name: 'offset',
-    required: false,
-    description: 'Pagination offset',
-  })
-  @ApiQuery({
-    name: 'search',
-    required: false,
-    description: 'Search by name or email',
-  })
-  @ApiQuery({
-    name: 'sortBy',
-    required: false,
-    description: 'Field to sort by (name or created_at)',
-  })
-  @ApiQuery({
-    name: 'sortDirection',
-    required: false,
-    description: 'Sort direction: asc or desc',
-  })
-  async getTeachersForClass(
-    @Param('classId') classId: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-    @Query('search') search?: string,
-    @Query('sortBy') sortBy?: string,
-    @Query('sortDirection') sortDirection?: SortDirection,
-  ): Promise<{ teachers: any[]; total: number }> {
-    const pagination: PaginationOptions = {
-      limit: limit ? parseInt(limit, 10) : undefined,
-      offset: offset ? parseInt(offset, 10) : undefined,
-    };
-    const sort: SortOptions = { sortBy, sortDirection };
+  //#endregion
 
-    return this.classesService.getTeachersForClass(
-      classId,
-      pagination,
-      sort,
-      search,
-    );
-  }
+  //#region Class Students
 
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
   @Get(':classId/students')
-  @ApiOperation({
-    summary:
-      'Retrieve all students assigned to a specific class with optional pagination, search, and sorting',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of students with total count',
-  })
-  @ApiQuery({ name: 'limit', required: false, description: 'Pagination limit' })
-  @ApiQuery({
-    name: 'offset',
-    required: false,
-    description: 'Pagination offset',
-  })
-  @ApiQuery({
-    name: 'search',
-    required: false,
-    description: 'Search by name or email',
-  })
-  @ApiQuery({
-    name: 'sortBy',
-    required: false,
-    description: 'Field to sort by (name or created_at)',
-  })
-  @ApiQuery({
-    name: 'sortDirection',
-    required: false,
-    description: 'Sort direction: asc or desc',
-  })
+  @GetStudentsForClassDocs()
   async getStudentsForClass(
     @Param('classId') classId: string,
     @Query('limit') limit?: string,
@@ -212,88 +226,34 @@ export class ClassesController {
     );
   }
 
-  @Get(':classId/available-teachers')
-  @ApiOperation({
-    summary:
-      'Retrieve all available teachers (users with role = teacher) who are not yet assigned to a specific class, with optional pagination, search, and sorting',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of available teachers with total count',
-  })
-  async getAvailableTeachersForClass(
-    @Param('classId') classId: string,
-  ): Promise<Partial<User>[]> {
-    return this.classesService.getAvailableTeachersForClass(classId);
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Retrieve a class by ID' })
-  @ApiResponse({ status: 200, description: 'Class found' })
-  @ApiResponse({ status: 404, description: 'Class not found' })
-  async getClass(@Param('id') id: string): Promise<Class | null> {
-    return this.classesService.getClass(id);
-  }
-
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Post()
-  @ApiOperation({ summary: 'Create a new class' })
-  @ApiResponse({ status: 201, description: 'Class successfully created' })
-  async createClass(@Body() dto: CreateClassDto): Promise<Class> {
-    return this.classesService.createClass(dto);
-  }
-
-  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update an existing class' })
-  @ApiResponse({ status: 200, description: 'Class successfully updated' })
-  @ApiResponse({ status: 404, description: 'Class not found' })
-  async updateClass(
-    @Param('id') id: string,
-    @Body() dto: UpdateClassDto,
-  ): Promise<Class> {
-    return this.classesService.updateClass(id, dto);
-  }
-
-  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a class' })
-  @ApiResponse({ status: 200, description: 'Class successfully deleted' })
-  @ApiResponse({ status: 404, description: 'Class not found' })
-  async deleteClass(@Param('id') id: string): Promise<void> {
-    return this.classesService.deleteClass(id);
-  }
-
-  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Post(':id/students')
-  @ApiOperation({ summary: 'Assign students to a class' })
-  @ApiResponse({ status: 200, description: 'Students successfully assigned' })
+  @Post(':classId/students')
+  @AssignStudentsToClassDocs()
   async assignStudentsToClass(
-    @Param('id') classId: string,
+    @Param('classId') classId: string,
     @Body('studentIds') studentIds: string[],
   ): Promise<void> {
     return this.classesService.assignStudentsToClass(classId, studentIds);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Post(':id/teachers')
-  @ApiOperation({ summary: 'Assign teachers to a class' })
-  @ApiResponse({ status: 200, description: 'Teachers successfully assigned' })
-  async assignTeachersToClass(
-    @Param('id') classId: string,
-    @Body('teacherIds') teacherIds: string[],
+  @Delete(':classId/students')
+  @UnassignStudentsFromClassDocs()
+  async unassignStudentsFromClass(
+    @Param('classId') classId: string,
+    @Body('studentIds') studentIds: string[],
   ): Promise<void> {
-    return this.classesService.assignTeachersToClass(classId, teacherIds);
+    return this.classesService.unassignStudentsFromClass(classId, studentIds);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Delete(':id/teachers')
-  @ApiOperation({ summary: 'Unassign teachers from a class' })
-  @ApiResponse({ status: 200, description: 'Teachers successfully unassigned' })
-  async unassignTeachersFromClass(
-    @Param('id') classId: string,
-    @Body('teacherIds') teacherIds: string[],
-  ): Promise<void> {
-    return this.classesService.unassignTeachersFromClass(classId, teacherIds);
+  @Get(':classId/available-students')
+  @GetAvailableStudentsForClassDocs()
+  async getAvailableStudentsForClass(
+    @Param('classId') classId: string,
+  ): Promise<Student[]> {
+    return this.classesService.getAvailableStudentsForClass(classId);
   }
+
+  //#endregion
 }
