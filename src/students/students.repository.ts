@@ -13,6 +13,17 @@ import {
 export class StudentsRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
+  async getStudentByUsername(username: string): Promise<Student | null> {
+    const { data, error } = await this.supabase.client
+      .from('students')
+      .select('*')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data;
+  }
+
   async getStudents(
     filters: StudentFilters = {},
     pagination: PaginationOptions = {},
@@ -82,6 +93,7 @@ export class StudentsRepository {
       gender,
       curriculum,
       grade_level,
+      image_url,
     } = createStudentDto;
 
     if (!username || !pin)
@@ -101,6 +113,7 @@ export class StudentsRepository {
         gender,
         curriculum,
         grade_level,
+        image_url,
       } as StudentInsert)
       .select()
       .single();

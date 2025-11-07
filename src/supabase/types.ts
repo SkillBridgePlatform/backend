@@ -39,6 +39,101 @@ export type Database = {
   };
   public: {
     Tables: {
+      class_students: {
+        Row: {
+          class_id: string;
+          student_id: string;
+        };
+        Insert: {
+          class_id: string;
+          student_id: string;
+        };
+        Update: {
+          class_id?: string;
+          student_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'class_students_class_id_fkey';
+            columns: ['class_id'];
+            isOneToOne: false;
+            referencedRelation: 'classes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'class_students_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'students';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      class_teachers: {
+        Row: {
+          class_id: string;
+          teacher_id: string;
+        };
+        Insert: {
+          class_id: string;
+          teacher_id: string;
+        };
+        Update: {
+          class_id?: string;
+          teacher_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'class_teachers_class_id_fkey';
+            columns: ['class_id'];
+            isOneToOne: false;
+            referencedRelation: 'classes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'class_teachers_teacher_id_fkey';
+            columns: ['teacher_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      classes: {
+        Row: {
+          created_at: string | null;
+          description: string | null;
+          id: string;
+          name: string;
+          school_id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          name: string;
+          school_id: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          school_id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'classes_school_id_fkey';
+            columns: ['school_id'];
+            isOneToOne: false;
+            referencedRelation: 'schools';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       schools: {
         Row: {
           address: string | null;
@@ -74,6 +169,7 @@ export type Database = {
           gender: Database['public']['Enums']['gender'];
           grade_level: string;
           id: string;
+          image_url: string | null;
           language: Database['public']['Enums']['user_language'];
           last_name: string;
           pin: string;
@@ -88,6 +184,7 @@ export type Database = {
           gender?: Database['public']['Enums']['gender'];
           grade_level: string;
           id?: string;
+          image_url?: string | null;
           language?: Database['public']['Enums']['user_language'];
           last_name: string;
           pin: string;
@@ -102,6 +199,7 @@ export type Database = {
           gender?: Database['public']['Enums']['gender'];
           grade_level?: string;
           id?: string;
+          image_url?: string | null;
           language?: Database['public']['Enums']['user_language'];
           last_name?: string;
           pin?: string;

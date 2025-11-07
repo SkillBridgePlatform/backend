@@ -41,7 +41,7 @@ export class UsersRepository {
       );
     }
 
-    // ✅ Apply sorting
+    // Apply sorting
     const allowedSortFields = ['first_name', 'created_at'];
     if (sort?.sortBy && allowedSortFields.includes(sort.sortBy)) {
       const direction = sort.sortDirection === 'desc' ? false : true;

@@ -1,16 +1,22 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AdminJwtAuthGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserRole } from 'src/common/enums';
 import { DashboardsService } from './dashboards.service';
 
+@ApiTags('Admin - Dashboards')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('dashboards')
-export class DashboardsController {
+@UseGuards(AdminJwtAuthGuard, RolesGuard)
+@Controller('/admin/dashboards')
+export class AdminDashboardsController {
   constructor(private readonly dashboardsService: DashboardsService) {}
 
   @Roles(UserRole.SuperAdmin)

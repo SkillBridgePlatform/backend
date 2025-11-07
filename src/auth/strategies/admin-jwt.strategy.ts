@@ -1,16 +1,15 @@
+// src/auth/admin-jwt.strategy.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { SupabaseService } from '../supabase/supabase.service';
+import { SupabaseService } from '../../supabase/supabase.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
   constructor(private readonly supabaseService: SupabaseService) {
     const secret = process.env.SUPABASE_JWT_SECRET;
-    if (!secret) {
-      throw new Error('SUPABASE_JWT_SECRET is not defined');
-    }
+    if (!secret) throw new Error('SUPABASE_JWT_SECRET is not defined');
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

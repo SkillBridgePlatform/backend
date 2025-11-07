@@ -1,12 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { CreateStudentDto } from './dto/create-student-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
 import { Student, StudentFilters } from './entities/students.entity';
 import { StudentsRepository } from './students.repository';
 @Injectable()
 export class StudentsService {
-  constructor(private readonly studentsRepository: StudentsRepository) {}
+  constructor(
+    private readonly fileUploadService: FileUploadService,
+    private readonly studentsRepository: StudentsRepository,
+  ) {}
+
+  async validateStudent(username: string, pin: string): Promise<Student> {
+    const student =
+      await this.studentsRepository.getStudentByUsername(username);
+    if (!student || student.pin !== pin) {
+      throw new UnauthorizedException('Invalid username or pin');
+    }
+    return student;
+  }
 
   async getStudents(
     filters: StudentFilters = {},
@@ -22,7 +39,19 @@ export class StudentsService {
     );
   }
 
-  async getStudent(id: string): Promise<Student> {
+  async getProfile(studentId: string): Promise<Student> {
+    const student = await this.studentsRepository.getStudentById(studentId);
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    const safeStudent = { ...student };
+    delete (safeStudent as any).pin;
+    return safeStudent as Student;
+  }
+
+  async getStudentById(id: string): Promise<Student> {
     const student = await this.studentsRepository.getStudentById(id);
     if (!student) {
       throw new NotFoundException(`Student not found`);
@@ -40,6 +69,16 @@ export class StudentsService {
   }
 
   async deleteStudent(id: string): Promise<void> {
+    const student = await this.studentsRepository.getStudentById(id);
+
+    if (student?.image_url) {
+      try {
+        await this.fileUploadService.deleteFile(student.image_url);
+      } catch (err) {
+        console.error('Failed to delete student image:', err);
+      }
+    }
+
     return this.studentsRepository.deleteStudent(id);
   }
 
