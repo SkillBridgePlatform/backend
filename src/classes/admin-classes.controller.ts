@@ -51,6 +51,30 @@ import { UpdateClassDto } from './dto/update-class-dto';
 export class AdminClassesController {
   constructor(private readonly classesService: ClassesService) {}
 
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
+  @Get('teacher')
+  @GetClassesForTeacherDocs()
+  async getClassesForTeacher(
+    @Query('teacher_id') teacher_id: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
+  ): Promise<{ classes: Class[]; total: number }> {
+    const pagination: PaginationOptions = {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+    const sort: SortOptions = { sortBy, sortDirection };
+    return this.classesService.getClassesForTeacher(
+      teacher_id,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
   //#region Class CRUD
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
@@ -170,32 +194,6 @@ export class AdminClassesController {
     @Body('teacherIds') teacherIds: string[],
   ): Promise<void> {
     return this.classesService.unassignTeachersFromClass(classId, teacherIds);
-  }
-
-  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
-  @Get('teacher')
-  @GetClassesForTeacherDocs()
-  async getClassesForTeacher(
-    @Req() req: Request,
-    @Query('teacher_id') teacher_id: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-    @Query('search') search?: string,
-    @Query('sortBy') sortBy?: string,
-    @Query('sortDirection') sortDirection?: SortDirection,
-  ): Promise<{ classes: Class[]; total: number }> {
-    const pagination: PaginationOptions = {
-      limit: limit ? parseInt(limit, 10) : undefined,
-      offset: offset ? parseInt(offset, 10) : undefined,
-    };
-    const sort: SortOptions = { sortBy, sortDirection };
-
-    return this.classesService.getClassesForTeacher(
-      teacher_id,
-      pagination,
-      sort,
-      search,
-    );
   }
 
   //#endregion
