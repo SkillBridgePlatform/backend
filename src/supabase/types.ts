@@ -134,6 +134,174 @@ export type Database = {
           },
         ];
       };
+      content_blocks: {
+        Row: {
+          content_data: Json;
+          created_at: string | null;
+          id: string;
+          lesson_id: string;
+          order: number;
+          type: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          content_data: Json;
+          created_at?: string | null;
+          id?: string;
+          lesson_id: string;
+          order: number;
+          type: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          content_data?: Json;
+          created_at?: string | null;
+          id?: string;
+          lesson_id?: string;
+          order?: number;
+          type?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'content_blocks_lesson_id_fkey';
+            columns: ['lesson_id'];
+            isOneToOne: false;
+            referencedRelation: 'lessons';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      courses: {
+        Row: {
+          created_at: string | null;
+          description: string | null;
+          estimated_duration: number;
+          id: string;
+          language: Database['public']['Enums']['user_language'];
+          slug: string;
+          status: string;
+          tags: string[] | null;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          description?: string | null;
+          estimated_duration: number;
+          id?: string;
+          language?: Database['public']['Enums']['user_language'];
+          slug: string;
+          status?: string;
+          tags?: string[] | null;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          description?: string | null;
+          estimated_duration?: number;
+          id?: string;
+          language?: Database['public']['Enums']['user_language'];
+          slug?: string;
+          status?: string;
+          tags?: string[] | null;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      lessons: {
+        Row: {
+          content_type: string;
+          created_at: string | null;
+          estimated_duration: number | null;
+          id: string;
+          module_id: string;
+          order: number;
+          slug: string;
+          summary: string | null;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          content_type: string;
+          created_at?: string | null;
+          estimated_duration?: number | null;
+          id?: string;
+          module_id: string;
+          order: number;
+          slug: string;
+          summary?: string | null;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          content_type?: string;
+          created_at?: string | null;
+          estimated_duration?: number | null;
+          id?: string;
+          module_id?: string;
+          order?: number;
+          slug?: string;
+          summary?: string | null;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'lessons_module_id_fkey';
+            columns: ['module_id'];
+            isOneToOne: false;
+            referencedRelation: 'modules';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      modules: {
+        Row: {
+          course_id: string;
+          created_at: string | null;
+          description: string | null;
+          estimated_duration: number;
+          id: string;
+          order: number;
+          slug: string;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          course_id: string;
+          created_at?: string | null;
+          description?: string | null;
+          estimated_duration: number;
+          id?: string;
+          order: number;
+          slug: string;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          course_id?: string;
+          created_at?: string | null;
+          description?: string | null;
+          estimated_duration?: number;
+          id?: string;
+          order?: number;
+          slug?: string;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'modules_course_id_fkey';
+            columns: ['course_id'];
+            isOneToOne: false;
+            referencedRelation: 'courses';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       schools: {
         Row: {
           address: string | null;

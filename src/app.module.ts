@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AdminAuthModule } from './auth/admin-auth.module';
 import { AuthModule } from './auth/auth.module';
 import { ClassesModule } from './classes/classes.module';
+import { CoursesModule } from './courses/courses.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { HealthModule } from './health/health.module';
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module';
     ClassesModule,
     SchoolsModule,
     DashboardsModule,
+    CoursesModule,
     StudentsModule,
     AuthModule,
     AdminAuthModule,
