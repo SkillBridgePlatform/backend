@@ -4,62 +4,44 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { CreateCourseModuleDto } from '../dto/create-course-module-dto';
 import { UpdateCourseModuleDto } from '../dto/update-course-module-dto';
+import { Course } from '../entities/course.entity';
 import { CourseModule } from '../entities/module.entity';
 
 @Injectable()
 export class CourseModulesRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
-  async getCourseModules(
-    courseId: string,
-    pagination: PaginationOptions = {},
-    search?: string,
-    sort?: SortOptions,
-  ): Promise<{ courseModules: CourseModule[]; total: number }> {
-    let query = this.supabase.client
-      .from('modules')
-      .select('*', { count: 'exact' });
-
-    // Apply search
-    if (search) {
-      const searchPattern = `%${search}%`;
-      query = query.or(`title.ilike.${searchPattern}`);
-    }
-
-    // Apply sorting
-    const allowedSortFields = ['title', 'created_at'];
-    if (sort?.sortBy && allowedSortFields.includes(sort.sortBy)) {
-      const direction = sort.sortDirection === 'desc' ? false : true;
-      query = query.order(sort.sortBy, { ascending: direction });
-    }
-
-    // Apply pagination
-    if (pagination.limit !== undefined) query = query.limit(pagination.limit);
-    if (pagination.offset !== undefined)
-      query = query.range(
-        pagination.offset,
-        pagination.offset + (pagination.limit ?? 0) - 1,
-      );
-
-    const { data, error, count } = await query;
-
-    if (error) throw new InternalServerErrorException(error.message);
-
-    return { courseModules: data as CourseModule[], total: count ?? 0 };
-  }
-
-  async getCourseModuleById(id: string): Promise<CourseModule | null> {
+  async getCourseModules(courseId: string): Promise<CourseModule[]> {
     const { data, error } = await this.supabase.client
       .from('modules')
       .select('*')
+      .eq('course_id', courseId)
+      .order('order', { ascending: true });
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    return data as CourseModule[];
+  }
+
+  async getCourseModuleById(
+    id: string,
+  ): Promise<(CourseModule & { course: Course }) | null> {
+    const { data, error } = await this.supabase.client
+      .from('modules')
+      .select(
+        `
+      *,
+      course:course_id(*)
+    `,
+      )
       .eq('id', id)
       .maybeSingle();
 
     if (error) throw new InternalServerErrorException(error.message);
+
     return data;
   }
 
@@ -130,6 +112,27 @@ export class CourseModulesRepository {
       .eq('id', id);
 
     if (error) throw new InternalServerErrorException(error.message);
+  }
+
+  async reorderCourseModules(
+    courseId: string,
+    moduleOrders: { id: string; order: number }[],
+  ): Promise<void> {
+    const updates = moduleOrders.map((m) =>
+      this.supabase.client
+        .from('modules')
+        .update({ order: m.order })
+        .eq('id', m.id)
+        .eq('course_id', courseId),
+    );
+
+    const results = await Promise.all(updates);
+
+    for (const res of results) {
+      if (res.error) {
+        throw new Error(`Failed to update module order: ${res.error.message}`);
+      }
+    }
   }
 
   private async generateUniqueSlug(

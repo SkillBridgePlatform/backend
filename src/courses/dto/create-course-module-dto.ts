@@ -14,7 +14,7 @@ export class CreateCourseModuleDto {
   description?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @IsNotEmpty()
   @IsInt()
   @Min(0)
   order?: number;

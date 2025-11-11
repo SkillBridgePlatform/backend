@@ -7,12 +7,10 @@ import {
   Param,
   Patch,
   Post,
-  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { SortDirection, UserRole } from 'src/common/enums';
-import { SortOptions } from 'src/common/interfaces';
+import { UserRole } from 'src/common/enums';
 import {
   CreateModuleDocs,
   DeleteModuleDocs,
@@ -21,7 +19,9 @@ import {
   UpdateModuleDocs,
 } from 'src/docs/courses/course-modules.docs';
 import { CreateCourseModuleDto } from '../dto/create-course-module-dto';
+import { ReorderCourseModulesDto } from '../dto/reorder-course-modules-dto';
 import { UpdateCourseModuleDto } from '../dto/update-course-module-dto';
+import { Course } from '../entities/course.entity';
 import { CourseModule } from '../entities/module.entity';
 import { CourseModulesService } from '../services/course-modules.service';
 
@@ -32,33 +32,32 @@ export class AdminCourseModulesController {
   constructor(private readonly courseModulesService: CourseModulesService) {}
 
   @Roles(UserRole.SuperAdmin)
+  @Patch('reorder')
+  async reorderCourseModules(
+    @Param('courseId') courseId: string,
+    @Body() dto: ReorderCourseModulesDto,
+  ): Promise<void> {
+    return this.courseModulesService.reorderCourseModules(
+      courseId,
+      dto.modules,
+    );
+  }
+
+  @Roles(UserRole.SuperAdmin)
   @Get()
   @GetModulesDocs()
   async getCourseModules(
     @Param('courseId') courseId: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-    @Query('search') search?: string,
-    @Query('sortBy') sortBy?: string,
-    @Query('sortDirection') sortDirection?: SortDirection,
-  ): Promise<{ courseModules: CourseModule[]; total: number }> {
-    const pagination = {
-      limit: limit ? parseInt(limit, 10) : undefined,
-      offset: offset ? parseInt(offset, 10) : undefined,
-    };
-    const sort: SortOptions = { sortBy, sortDirection };
-    return this.courseModulesService.getCourseModules(
-      courseId,
-      pagination,
-      search,
-      sort,
-    );
+  ): Promise<CourseModule[]> {
+    return this.courseModulesService.getCourseModules(courseId);
   }
 
   @Roles(UserRole.SuperAdmin)
   @Get(':id')
   @GetModuleByIdDocs()
-  async getCourseModule(@Param('id') id: string): Promise<CourseModule> {
+  async getCourseModule(
+    @Param('id') id: string,
+  ): Promise<(CourseModule & { course: Course }) | null> {
     return this.courseModulesService.getCourseModule(id);
   }
 

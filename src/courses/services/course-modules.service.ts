@@ -1,8 +1,8 @@
 // src/modules/modules.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { CreateCourseModuleDto } from '../dto/create-course-module-dto';
 import { UpdateCourseModuleDto } from '../dto/update-course-module-dto';
+import { Course } from '../entities/course.entity';
 import { CourseModule } from '../entities/module.entity';
 import { CourseModulesRepository } from '../repositories/course-modules.repository';
 
@@ -12,21 +12,13 @@ export class CourseModulesService {
     private readonly courseModulesRepository: CourseModulesRepository,
   ) {}
 
-  async getCourseModules(
-    courseId: string,
-    pagination: PaginationOptions = {},
-    search?: string,
-    sort?: SortOptions,
-  ): Promise<{ courseModules: CourseModule[]; total: number }> {
-    return this.courseModulesRepository.getCourseModules(
-      courseId,
-      pagination,
-      search,
-      sort,
-    );
+  async getCourseModules(courseId: string): Promise<CourseModule[]> {
+    return this.courseModulesRepository.getCourseModules(courseId);
   }
 
-  async getCourseModule(id: string): Promise<CourseModule> {
+  async getCourseModule(
+    id: string,
+  ): Promise<(CourseModule & { course: Course }) | null> {
     const module = await this.courseModulesRepository.getCourseModuleById(id);
     if (!module) throw new NotFoundException('Module not found');
     return module;
@@ -54,5 +46,15 @@ export class CourseModulesService {
 
   async deleteCourseModule(id: string): Promise<void> {
     return this.courseModulesRepository.deleteCourseModule(id);
+  }
+
+  async reorderCourseModules(
+    courseId: string,
+    moduleOrders: { id: string; order: number }[],
+  ): Promise<void> {
+    await this.courseModulesRepository.reorderCourseModules(
+      courseId,
+      moduleOrders,
+    );
   }
 }
