@@ -136,7 +136,6 @@ export type Database = {
       };
       content_blocks: {
         Row: {
-          content_data: Json;
           created_at: string | null;
           id: string;
           lesson_id: string;
@@ -145,7 +144,6 @@ export type Database = {
           updated_at: string | null;
         };
         Insert: {
-          content_data: Json;
           created_at?: string | null;
           id?: string;
           lesson_id: string;
@@ -154,7 +152,6 @@ export type Database = {
           updated_at?: string | null;
         };
         Update: {
-          content_data?: Json;
           created_at?: string | null;
           id?: string;
           lesson_id?: string;
@@ -213,7 +210,6 @@ export type Database = {
       };
       lessons: {
         Row: {
-          content_type: string;
           created_at: string | null;
           estimated_duration: number | null;
           id: string;
@@ -225,7 +221,6 @@ export type Database = {
           updated_at: string | null;
         };
         Insert: {
-          content_type: string;
           created_at?: string | null;
           estimated_duration?: number | null;
           id?: string;
@@ -237,7 +232,6 @@ export type Database = {
           updated_at?: string | null;
         };
         Update: {
-          content_type?: string;
           created_at?: string | null;
           estimated_duration?: number | null;
           id?: string;
@@ -385,583 +379,25 @@ export type Database = {
           },
         ];
       };
-      users: {
+      text_content_blocks: {
         Row: {
-          created_at: string | null;
-          email: string | null;
-          first_name: string;
-          id: string;
-          language: Database['public']['Enums']['user_language'] | null;
-          last_name: string;
-          role: Database['public']['Enums']['user_role'];
-          school_id: string | null;
-          updated_at: string | null;
+          content: string;
+          content_block_id: string;
         };
         Insert: {
-          created_at?: string | null;
-          email?: string | null;
-          first_name?: string;
-          id: string;
-          language?: Database['public']['Enums']['user_language'] | null;
-          last_name?: string;
-          role: Database['public']['Enums']['user_role'];
-          school_id?: string | null;
-          updated_at?: string | null;
+          content: string;
+          content_block_id: string;
         };
         Update: {
-          created_at?: string | null;
-          email?: string | null;
-          first_name?: string;
-          id?: string;
-          language?: Database['public']['Enums']['user_language'] | null;
-          last_name?: string;
-          role?: Database['public']['Enums']['user_role'];
-          school_id?: string | null;
-          updated_at?: string | null;
+          content?: string;
+          content_block_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: 'users_school_id_fkey';
-            columns: ['school_id'];
-            isOneToOne: false;
-            referencedRelation: 'schools';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      [_ in never]: never;
-    };
-    Enums: {
-      gender: 'Male' | 'Female';
-      user_language: 'EN' | 'FR' | 'AR';
-      user_role: 'SuperAdmin' | 'SchoolAdmin' | 'Teacher' | 'Student';
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
-};
-
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<
-  keyof Database,
-  'public'
->];
-
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
-      Row: infer R;
-    }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R;
-      }
-      ? R
-      : never
-    : never;
-
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
-      Insert: infer I;
-    }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I;
-      }
-      ? I
-      : never
-    : never;
-
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
-      Update: infer U;
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U;
-      }
-      ? U
-      : never
-    : never;
-
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
-    : never;
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
-    : never;
-
-export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
-  public: {
-    Enums: {
-      gender: ['Male', 'Female'],
-      user_language: ['EN', 'FR', 'AR'],
-      user_role: ['SuperAdmin', 'SchoolAdmin', 'Teacher', 'Student'],
-    },
-  },
-} as const;
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
-
-export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: '13.0.5';
-  };
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
-  public: {
-    Tables: {
-      class_students: {
-        Row: {
-          class_id: string;
-          student_id: string;
-        };
-        Insert: {
-          class_id: string;
-          student_id: string;
-        };
-        Update: {
-          class_id?: string;
-          student_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'class_students_class_id_fkey';
-            columns: ['class_id'];
-            isOneToOne: false;
-            referencedRelation: 'classes';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'class_students_student_id_fkey';
-            columns: ['student_id'];
-            isOneToOne: false;
-            referencedRelation: 'students';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      class_teachers: {
-        Row: {
-          class_id: string;
-          teacher_id: string;
-        };
-        Insert: {
-          class_id: string;
-          teacher_id: string;
-        };
-        Update: {
-          class_id?: string;
-          teacher_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'class_teachers_class_id_fkey';
-            columns: ['class_id'];
-            isOneToOne: false;
-            referencedRelation: 'classes';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'class_teachers_teacher_id_fkey';
-            columns: ['teacher_id'];
-            isOneToOne: false;
-            referencedRelation: 'users';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      classes: {
-        Row: {
-          created_at: string | null;
-          description: string | null;
-          id: string;
-          name: string;
-          school_id: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          created_at?: string | null;
-          description?: string | null;
-          id?: string;
-          name: string;
-          school_id: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          created_at?: string | null;
-          description?: string | null;
-          id?: string;
-          name?: string;
-          school_id?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'classes_school_id_fkey';
-            columns: ['school_id'];
-            isOneToOne: false;
-            referencedRelation: 'schools';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      content_blocks: {
-        Row: {
-          content_data: Json;
-          created_at: string | null;
-          id: string;
-          lesson_id: string;
-          order: number;
-          type: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          content_data: Json;
-          created_at?: string | null;
-          id?: string;
-          lesson_id: string;
-          order: number;
-          type: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          content_data?: Json;
-          created_at?: string | null;
-          id?: string;
-          lesson_id?: string;
-          order?: number;
-          type?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'content_blocks_lesson_id_fkey';
-            columns: ['lesson_id'];
-            isOneToOne: false;
-            referencedRelation: 'lessons';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      courses: {
-        Row: {
-          created_at: string | null;
-          description: string | null;
-          estimated_duration: number;
-          id: string;
-          language: Database['public']['Enums']['user_language'];
-          slug: string;
-          status: string;
-          tags: string[] | null;
-          title: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          created_at?: string | null;
-          description?: string | null;
-          estimated_duration: number;
-          id?: string;
-          language?: Database['public']['Enums']['user_language'];
-          slug: string;
-          status?: string;
-          tags?: string[] | null;
-          title: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          created_at?: string | null;
-          description?: string | null;
-          estimated_duration?: number;
-          id?: string;
-          language?: Database['public']['Enums']['user_language'];
-          slug?: string;
-          status?: string;
-          tags?: string[] | null;
-          title?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [];
-      };
-      lessons: {
-        Row: {
-          content_type: string;
-          created_at: string | null;
-          estimated_duration: number | null;
-          id: string;
-          module_id: string;
-          order: number;
-          slug: string;
-          summary: string | null;
-          title: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          content_type: string;
-          created_at?: string | null;
-          estimated_duration?: number | null;
-          id?: string;
-          module_id: string;
-          order: number;
-          slug: string;
-          summary?: string | null;
-          title: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          content_type?: string;
-          created_at?: string | null;
-          estimated_duration?: number | null;
-          id?: string;
-          module_id?: string;
-          order?: number;
-          slug?: string;
-          summary?: string | null;
-          title?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'lessons_module_id_fkey';
-            columns: ['module_id'];
-            isOneToOne: false;
-            referencedRelation: 'modules';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      modules: {
-        Row: {
-          course_id: string;
-          created_at: string | null;
-          description: string | null;
-          estimated_duration: number;
-          id: string;
-          order: number;
-          slug: string;
-          title: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          course_id: string;
-          created_at?: string | null;
-          description?: string | null;
-          estimated_duration: number;
-          id?: string;
-          order: number;
-          slug: string;
-          title: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          course_id?: string;
-          created_at?: string | null;
-          description?: string | null;
-          estimated_duration?: number;
-          id?: string;
-          order?: number;
-          slug?: string;
-          title?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'modules_course_id_fkey';
-            columns: ['course_id'];
-            isOneToOne: false;
-            referencedRelation: 'courses';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      schools: {
-        Row: {
-          address: string | null;
-          created_at: string | null;
-          id: string;
-          language: Database['public']['Enums']['user_language'];
-          name: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          address?: string | null;
-          created_at?: string | null;
-          id?: string;
-          language?: Database['public']['Enums']['user_language'];
-          name: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          address?: string | null;
-          created_at?: string | null;
-          id?: string;
-          language?: Database['public']['Enums']['user_language'];
-          name?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [];
-      };
-      students: {
-        Row: {
-          created_at: string | null;
-          curriculum: string;
-          first_name: string;
-          gender: Database['public']['Enums']['gender'];
-          grade_level: string;
-          id: string;
-          image_url: string | null;
-          language: Database['public']['Enums']['user_language'];
-          last_name: string;
-          pin: string;
-          school_id: string | null;
-          updated_at: string | null;
-          username: string;
-        };
-        Insert: {
-          created_at?: string | null;
-          curriculum?: string;
-          first_name: string;
-          gender?: Database['public']['Enums']['gender'];
-          grade_level: string;
-          id?: string;
-          image_url?: string | null;
-          language?: Database['public']['Enums']['user_language'];
-          last_name: string;
-          pin: string;
-          school_id?: string | null;
-          updated_at?: string | null;
-          username: string;
-        };
-        Update: {
-          created_at?: string | null;
-          curriculum?: string;
-          first_name?: string;
-          gender?: Database['public']['Enums']['gender'];
-          grade_level?: string;
-          id?: string;
-          image_url?: string | null;
-          language?: Database['public']['Enums']['user_language'];
-          last_name?: string;
-          pin?: string;
-          school_id?: string | null;
-          updated_at?: string | null;
-          username?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'students_school_id_fkey';
-            columns: ['school_id'];
-            isOneToOne: false;
-            referencedRelation: 'schools';
+            foreignKeyName: 'text_content_blocks_content_block_id_fkey';
+            columns: ['content_block_id'];
+            isOneToOne: true;
+            referencedRelation: 'content_blocks';
             referencedColumns: ['id'];
           },
         ];
@@ -1006,6 +442,29 @@ export type Database = {
             columns: ['school_id'];
             isOneToOne: false;
             referencedRelation: 'schools';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      video_content_blocks: {
+        Row: {
+          content_block_id: string;
+          video_url: string;
+        };
+        Insert: {
+          content_block_id: string;
+          video_url: string;
+        };
+        Update: {
+          content_block_id?: string;
+          video_url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'video_content_blocks_content_block_id_fkey';
+            columns: ['content_block_id'];
+            isOneToOne: true;
+            referencedRelation: 'content_blocks';
             referencedColumns: ['id'];
           },
         ];
