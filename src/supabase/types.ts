@@ -474,7 +474,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      create_lesson_with_blocks: {
+        Args: {
+          p_module_id: string;
+          p_title: string;
+          p_description: string;
+          p_estimated_duration: number;
+          p_content_blocks: Json;
+        };
+        Returns: Json;
+      };
     };
     Enums: {
       gender: 'Male' | 'Female';
