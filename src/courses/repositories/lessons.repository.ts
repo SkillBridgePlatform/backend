@@ -138,6 +138,7 @@ export class LessonsRepository {
           .from('text_content_blocks')
           .insert({
             content_block_id: contentBlockData.id,
+            title: block.title,
             content: block.content,
           })
           .select()
@@ -162,6 +163,7 @@ export class LessonsRepository {
             .from('video_content_blocks')
             .insert({
               content_block_id: contentBlockData.id,
+              title: block.title,
               video_url: block.videoUrl,
             })
             .select()
@@ -257,6 +259,7 @@ export class LessonsRepository {
           .from('text_content_blocks')
           .insert({
             content_block_id: contentBlockData.id,
+            title: block.title,
             content: block.content,
           })
           .select()
@@ -280,6 +283,7 @@ export class LessonsRepository {
             .from('video_content_blocks')
             .insert({
               content_block_id: contentBlockData.id,
+              title: block.title,
               video_url: block.videoUrl,
             })
             .select()

@@ -383,14 +383,17 @@ export type Database = {
         Row: {
           content: string;
           content_block_id: string;
+          title: string;
         };
         Insert: {
           content: string;
           content_block_id: string;
+          title?: string;
         };
         Update: {
           content?: string;
           content_block_id?: string;
+          title?: string;
         };
         Relationships: [
           {
@@ -449,14 +452,17 @@ export type Database = {
       video_content_blocks: {
         Row: {
           content_block_id: string;
+          title: string;
           video_url: string;
         };
         Insert: {
           content_block_id: string;
+          title?: string;
           video_url: string;
         };
         Update: {
           content_block_id?: string;
+          title?: string;
           video_url?: string;
         };
         Relationships: [
@@ -476,13 +482,13 @@ export type Database = {
     Functions: {
       create_lesson_with_blocks: {
         Args: {
-          p_module_id: string;
-          p_title: string;
+          p_content_blocks: Json;
           p_description: string;
           p_estimated_duration: number;
-          p_content_blocks: Json;
+          p_module_id: string;
+          p_title: string;
         };
-        Returns: Json;
+        Returns: undefined;
       };
     };
     Enums: {

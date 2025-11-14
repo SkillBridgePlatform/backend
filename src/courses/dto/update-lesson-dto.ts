@@ -17,6 +17,10 @@ class UpdateContentBlockDto {
   @IsString()
   type: string;
 
+  @ApiProperty()
+  @IsString()
+  title: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

@@ -17,6 +17,10 @@ export class ContentBlockDto {
   @IsString()
   type: 'text' | 'video';
 
+  @ApiProperty()
+  @IsString()
+  title: string;
+
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
