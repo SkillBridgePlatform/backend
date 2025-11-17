@@ -5,4 +5,5 @@ export class SchoolDashboard {
   totalSchoolAdmins: number | null;
   totalTeachers: number;
   totalStudents: number;
+  totalClasses: number;
 }

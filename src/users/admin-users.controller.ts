@@ -15,10 +15,11 @@ import {
   ApiOperation,
   ApiQuery,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AdminJwtAuthGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserLanguage, UserRole } from 'src/common/enums';
 import { SortOptions } from 'src/common/interfaces';
@@ -28,10 +29,11 @@ import { UpdateStaffUserDto } from './dto/update-staff-dto';
 import { User, UserInfo } from './entities/user.entity';
 import { UsersService } from './users.service';
 
+@ApiTags('Admin - Users')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('users')
-export class UsersController {
+@UseGuards(AdminJwtAuthGuard, RolesGuard)
+@Controller('/admin/users')
+export class AdminUsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Patch('profile')

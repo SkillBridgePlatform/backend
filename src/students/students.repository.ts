@@ -13,6 +13,17 @@ import {
 export class StudentsRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
+  async getStudentByUsername(username: string): Promise<Student | null> {
+    const { data, error } = await this.supabase.client
+      .from('students')
+      .select('*')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data;
+  }
+
   async getStudents(
     filters: StudentFilters = {},
     pagination: PaginationOptions = {},
@@ -72,8 +83,18 @@ export class StudentsRepository {
   }
 
   async createStudent(createStudentDto: CreateStudentDto): Promise<Student> {
-    const { username, pin, first_name, last_name, school_id, language } =
-      createStudentDto;
+    const {
+      username,
+      pin,
+      first_name,
+      last_name,
+      school_id,
+      language,
+      gender,
+      curriculum,
+      grade_level,
+      image_url,
+    } = createStudentDto;
 
     if (!username || !pin)
       throw new InternalServerErrorException('Username and pin are required');
@@ -89,6 +110,10 @@ export class StudentsRepository {
         last_name,
         school_id,
         language,
+        gender,
+        curriculum,
+        grade_level,
+        image_url,
       } as StudentInsert)
       .select()
       .single();
@@ -101,6 +126,9 @@ export class StudentsRepository {
     const sanitizedDto = {
       ...updates,
       language: updates.language ?? undefined,
+      gender: updates.gender,
+      curriculum: updates.curriculum,
+      grade_level: updates.grade_level,
     };
 
     const { data, error } = await this.supabase.client
