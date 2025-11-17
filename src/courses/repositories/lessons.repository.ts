@@ -332,6 +332,15 @@ export class LessonsRepository {
     return data as LessonWithBlocks;
   }
 
+  async deleteLesson(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('lessons')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw new InternalServerErrorException(error.message);
+  }
+
   generateSlug(title: string): string {
     return title
       .toLowerCase()

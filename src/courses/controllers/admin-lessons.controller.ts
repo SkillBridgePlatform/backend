@@ -1,9 +1,10 @@
 // src/modules/modules.controller.ts
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from 'src/common/enums';
 import {
+  DeleteLessonDocs,
   GetLessonByIdDocs,
   UpdateLessonDocs,
 } from 'src/docs/courses/lessons.docs';
@@ -36,5 +37,12 @@ export class AdminLessonsController {
     @Body() dto: UpdateLessonDto,
   ): Promise<Lesson & { contentBlocks: ContentBlock[] }> {
     return this.lessonsService.updateLessonWithBlocks(id, dto);
+  }
+
+  @Roles(UserRole.SuperAdmin)
+  @Delete(':id')
+  @DeleteLessonDocs()
+  async deleteLesson(@Param('id') id: string): Promise<void> {
+    return this.lessonsService.deleteLesson(id);
   }
 }
