@@ -1,13 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { School } from 'src/schools/entities/schools.entity';
 import { CreateCourseDto } from '../dto/create-course-dto';
 import { UpdateCourseDto } from '../dto/update-course-dto';
 import { Course } from '../entities/course.entity';
+import { CourseSchoolsRepository } from '../repositories/course-schools.repository';
 import { CoursesRepository } from '../repositories/courses.repository';
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly coursesRepository: CoursesRepository) {}
+  constructor(
+    private readonly coursesRepository: CoursesRepository,
+    private readonly courseSchoolsRepository: CourseSchoolsRepository,
+  ) {}
 
   async getCourses(
     pagination: PaginationOptions = {},
@@ -43,5 +48,49 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
     return this.coursesRepository.deleteCourse(id);
+  }
+
+  // Course Schools
+
+  async linkSchoolsToCourse(
+    courseId: string,
+    schoolIds: string[],
+  ): Promise<void> {
+    return await this.courseSchoolsRepository.linkSchoolsToCourse(
+      courseId,
+      schoolIds,
+    );
+  }
+
+  async getAvailableSchoolsForCourseLinking(
+    courseId: string,
+  ): Promise<Partial<School>[]> {
+    return this.courseSchoolsRepository.getAvailableSchoolsForCourseLinking(
+      courseId,
+    );
+  }
+
+  async unlinkSchoolsFromCourse(
+    courseId: string,
+    schoolIds: string[],
+  ): Promise<void> {
+    return this.courseSchoolsRepository.unlinkSchoolsFromCourse(
+      courseId,
+      schoolIds,
+    );
+  }
+
+  async getSchoolsLinkedToCourse(
+    courseId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ schools: School[]; total: number }> {
+    return this.courseSchoolsRepository.getSchoolsLinkedToCourse(
+      courseId,
+      pagination,
+      sort,
+      search,
+    );
   }
 }

@@ -43,3 +43,52 @@ export const DeleteCourseDocs = () =>
     ApiResponse({ status: 200, description: 'Course successfully deleted' }),
     ApiResponse({ status: 404, description: 'Course not found' }),
   );
+
+export const GetSchoolsLinkedToCourseDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary:
+        'Retrieve schools linked to a course with optional pagination and search',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'List of schools with total count',
+    }),
+    ApiQuery({
+      name: 'course_id',
+      required: true,
+      description: 'Course UUID',
+    }),
+    ApiQuery({ name: 'limit', required: false }),
+    ApiQuery({ name: 'offset', required: false }),
+    ApiQuery({ name: 'search', required: false }),
+    ApiQuery({ name: 'sortBy', required: false }),
+    ApiQuery({ name: 'sortDirection', required: false }),
+  );
+
+export const GetAvailableSchoolsForCourseLinkingDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary:
+        'Retrieve all available schools who are not yet linked to this course',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'List of available schools with total count',
+    }),
+  );
+
+export const LinkSchoolsToCourseDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Link schools to course' }),
+    ApiResponse({ status: 200, description: 'Course linked successfully' }),
+  );
+
+export const UnlinkSchoolsFromCourseDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Unlink schools from course' }),
+    ApiResponse({
+      status: 200,
+      description: 'Schools successfully unlinked',
+    }),
+  );

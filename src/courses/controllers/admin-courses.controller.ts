@@ -14,14 +14,19 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserRole } from 'src/common/enums';
-import { SortOptions } from 'src/common/interfaces';
+import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import {
   CreateCourseDocs,
   DeleteCourseDocs,
+  GetAvailableSchoolsForCourseLinkingDocs,
   GetCourseByIdDocs,
   GetCoursesDocs,
+  GetSchoolsLinkedToCourseDocs,
+  LinkSchoolsToCourseDocs,
+  UnlinkSchoolsFromCourseDocs,
   UpdateCourseDocs,
 } from 'src/docs/courses/courses.docs';
+import { School } from 'src/schools/entities/schools.entity';
 import { CreateCourseDto } from '../dto/create-course-dto';
 import { UpdateCourseDto } from '../dto/update-course-dto';
 import { Course } from '../entities/course.entity';
@@ -83,4 +88,62 @@ export class AdminCoursesController {
   async deleteCourse(@Param('id') id: string): Promise<void> {
     return this.coursesService.deleteCourse(id);
   }
+
+  //#region Course Schools
+
+  @Roles(UserRole.SuperAdmin)
+  @Get(':courseId/schools')
+  @GetSchoolsLinkedToCourseDocs()
+  async getSchoolsLinkedToCourse(
+    @Param('courseId') courseId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
+  ): Promise<{ schools: School[]; total: number }> {
+    const pagination: PaginationOptions = {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+    const sort: SortOptions = { sortBy, sortDirection };
+
+    return this.coursesService.getSchoolsLinkedToCourse(
+      courseId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
+  @Roles(UserRole.SuperAdmin)
+  @Get(':courseId/available-schools')
+  @GetAvailableSchoolsForCourseLinkingDocs()
+  async getAvailableSchoolsForCourseLinking(
+    @Param('courseId') courseId: string,
+  ): Promise<Partial<School>[]> {
+    return this.coursesService.getAvailableSchoolsForCourseLinking(courseId);
+  }
+
+  @Roles(UserRole.SuperAdmin)
+  @Post(':courseId/schools')
+  @LinkSchoolsToCourseDocs()
+  async linkSchoolsToCourse(
+    @Param('courseId') courseId: string,
+    @Body('schoolIds') schoolIds: string[],
+  ): Promise<void> {
+    return this.coursesService.linkSchoolsToCourse(courseId, schoolIds);
+  }
+
+  @Roles(UserRole.SuperAdmin)
+  @Delete(':courseId/schools')
+  @UnlinkSchoolsFromCourseDocs()
+  async unlinkSchoolsFromCourse(
+    @Param('courseId') courseId: string,
+    @Body('schoolIds') schoolIds: string[],
+  ): Promise<void> {
+    return this.coursesService.unlinkSchoolsFromCourse(courseId, schoolIds);
+  }
+
+  //#endregion
 }
