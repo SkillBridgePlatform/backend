@@ -8,7 +8,7 @@ import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateCourseDto } from '../dto/create-course-dto';
 import { UpdateCourseDto } from '../dto/update-course-dto';
-import { Course } from '../entities/course.entity';
+import { Course, CourseWithModulesAndLessons } from '../entities/course.entity';
 
 @Injectable()
 export class CoursesRepository {
@@ -141,5 +141,38 @@ export class CoursesRepository {
       .eq('id', id);
 
     if (error) throw new InternalServerErrorException(error.message);
+  }
+
+  async getCourseWithModulesAndLessons(
+    courseId: string,
+  ): Promise<CourseWithModulesAndLessons | null> {
+    const { data, error } = await this.supabase.client
+      .from('courses')
+      .select(
+        `
+      *,
+      modules (
+        *,
+        lessons (*)
+      )
+    `,
+      )
+      .eq('id', courseId)
+      .maybeSingle();
+
+    if (error) throw new InternalServerErrorException(error.message);
+    if (!data) return null;
+
+    const modules = (data.modules || [])
+      .sort((a, b) => a.order - b.order)
+      .map((module) => ({
+        ...module,
+        lessons: (module.lessons || []).sort((a, b) => a.order - b.order),
+      }));
+
+    return {
+      ...data,
+      modules,
+    };
   }
 }

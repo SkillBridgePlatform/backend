@@ -22,6 +22,7 @@ import {
   GetAvailableSchoolsForCourseAssignmentDocs,
   GetCourseByIdDocs,
   GetCoursesDocs,
+  GetCourseWithModulesAndLessonsDocs,
   GetSchoolsAssignedToCourseDocs,
   UnassignSchoolsFromCourseDocs,
   UpdateCourseDocs,
@@ -29,7 +30,7 @@ import {
 import { School } from 'src/schools/entities/schools.entity';
 import { CreateCourseDto } from '../dto/create-course-dto';
 import { UpdateCourseDto } from '../dto/update-course-dto';
-import { Course } from '../entities/course.entity';
+import { Course, CourseWithModulesAndLessons } from '../entities/course.entity';
 import { CoursesService } from '../services/courses.service';
 
 @ApiTags('Admin - Courses')
@@ -38,6 +39,15 @@ import { CoursesService } from '../services/courses.service';
 @Controller('/admin/courses')
 export class AdminCoursesController {
   constructor(private readonly coursesService: CoursesService) {}
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Get(':id/full')
+  @GetCourseWithModulesAndLessonsDocs()
+  async GetCourseWithModulesAndLessons(
+    @Param('id') id: string,
+  ): Promise<CourseWithModulesAndLessons | null> {
+    return this.coursesService.getCourseWithModulesAndLessons(id);
+  }
 
   @Roles(UserRole.SuperAdmin)
   @Get()

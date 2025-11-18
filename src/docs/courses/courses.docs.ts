@@ -44,6 +44,13 @@ export const DeleteCourseDocs = () =>
     ApiResponse({ status: 404, description: 'Course not found' }),
   );
 
+export const GetCourseWithModulesAndLessonsDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Retrieve a course with its children' }),
+    ApiResponse({ status: 200, description: 'Course found' }),
+    ApiResponse({ status: 404, description: 'Course not found' }),
+  );
+
 export const GetSchoolsAssignedToCourseDocs = () =>
   applyDecorators(
     ApiOperation({

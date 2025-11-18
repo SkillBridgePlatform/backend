@@ -3,7 +3,7 @@ import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { School } from 'src/schools/entities/schools.entity';
 import { CreateCourseDto } from '../dto/create-course-dto';
 import { UpdateCourseDto } from '../dto/update-course-dto';
-import { Course } from '../entities/course.entity';
+import { Course, CourseWithModulesAndLessons } from '../entities/course.entity';
 import { CoursesRepository } from '../repositories/courses.repository';
 import { CourseSchoolsRepository } from '../repositories/school-courses.repository';
 
@@ -48,6 +48,17 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
     return this.coursesRepository.deleteCourse(id);
+  }
+
+  async getCourseWithModulesAndLessons(
+    courseId: string,
+  ): Promise<CourseWithModulesAndLessons | null> {
+    const course =
+      await this.coursesRepository.getCourseWithModulesAndLessons(courseId);
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+    return course;
   }
 
   // Course Schools
