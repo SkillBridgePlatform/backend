@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { Course } from 'src/courses/entities/course.entity';
 import { CreateSchoolDto } from './dto/create-school-dto';
 import { UpdateSchoolDto } from './dto/update-school-dto';
 import { School } from './entities/schools.entity';
@@ -8,6 +9,20 @@ import { SchoolsRepository } from './schools.repository';
 @Injectable()
 export class SchoolsService {
   constructor(private readonly schoolsRepository: SchoolsRepository) {}
+
+  async getCoursesForSchool(
+    schoolId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ courses: Course[]; total: number }> {
+    return this.schoolsRepository.getCoursesForSchool(
+      schoolId,
+      pagination,
+      sort,
+      search,
+    );
+  }
 
   async getSchools(
     pagination: PaginationOptions = {},

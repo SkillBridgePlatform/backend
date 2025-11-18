@@ -21,6 +21,7 @@ import { AdminJwtAuthGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { Course } from 'src/courses/entities/course.entity';
 import { CreateSchoolDto } from './dto/create-school-dto';
 import { UpdateSchoolDto } from './dto/update-school-dto';
 import { School } from './entities/schools.entity';
@@ -32,6 +33,44 @@ import { SchoolsService } from './schools.service';
 @Controller('/admin/schools')
 export class AdminSchoolsController {
   constructor(private readonly schoolsService: SchoolsService) {}
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Get(':id/courses')
+  @ApiOperation({
+    summary:
+      'Retrieve courses assigned to a school with optional pagination and search',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of classes with total count',
+  })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'sortBy', required: false })
+  @ApiQuery({ name: 'sortDirection', required: false })
+  async getCoursesForSchool(
+    @Param('id') school_id: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
+  ): Promise<{ courses: Course[]; total: number }> {
+    const pagination: PaginationOptions = {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+
+    const sort: SortOptions = { sortBy, sortDirection };
+
+    return this.schoolsService.getCoursesForSchool(
+      school_id,
+      pagination,
+      sort,
+      search,
+    );
+  }
 
   @Roles(UserRole.SuperAdmin)
   @Get()
