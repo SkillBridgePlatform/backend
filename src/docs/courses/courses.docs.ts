@@ -44,7 +44,7 @@ export const DeleteCourseDocs = () =>
     ApiResponse({ status: 404, description: 'Course not found' }),
   );
 
-export const GetSchoolsLinkedToCourseDocs = () =>
+export const GetSchoolsAssignedToCourseDocs = () =>
   applyDecorators(
     ApiOperation({
       summary:
@@ -66,11 +66,11 @@ export const GetSchoolsLinkedToCourseDocs = () =>
     ApiQuery({ name: 'sortDirection', required: false }),
   );
 
-export const GetAvailableSchoolsForCourseLinkingDocs = () =>
+export const GetAvailableSchoolsForCourseAssignmentDocs = () =>
   applyDecorators(
     ApiOperation({
       summary:
-        'Retrieve all available schools who are not yet linked to this course',
+        'Retrieve all available schools who are not yet assigned to this course',
     }),
     ApiResponse({
       status: 200,
@@ -78,17 +78,17 @@ export const GetAvailableSchoolsForCourseLinkingDocs = () =>
     }),
   );
 
-export const LinkSchoolsToCourseDocs = () =>
+export const AssignSchoolsToCourseDocs = () =>
   applyDecorators(
-    ApiOperation({ summary: 'Link schools to course' }),
-    ApiResponse({ status: 200, description: 'Course linked successfully' }),
+    ApiOperation({ summary: 'Assign schools to course' }),
+    ApiResponse({ status: 200, description: 'Schools assigned successfully' }),
   );
 
-export const UnlinkSchoolsFromCourseDocs = () =>
+export const UnassignSchoolsFromCourseDocs = () =>
   applyDecorators(
-    ApiOperation({ summary: 'Unlink schools from course' }),
+    ApiOperation({ summary: 'Unassign schools from course' }),
     ApiResponse({
       status: 200,
-      description: 'Schools successfully unlinked',
+      description: 'Schools successfully unassigned',
     }),
   );

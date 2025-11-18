@@ -4,8 +4,8 @@ import { School } from 'src/schools/entities/schools.entity';
 import { CreateCourseDto } from '../dto/create-course-dto';
 import { UpdateCourseDto } from '../dto/update-course-dto';
 import { Course } from '../entities/course.entity';
-import { CourseSchoolsRepository } from '../repositories/course-schools.repository';
 import { CoursesRepository } from '../repositories/courses.repository';
+import { CourseSchoolsRepository } from '../repositories/school-courses.repository';
 
 @Injectable()
 export class CoursesService {
@@ -52,41 +52,41 @@ export class CoursesService {
 
   // Course Schools
 
-  async linkSchoolsToCourse(
+  async assignSchoolsToCourse(
     courseId: string,
     schoolIds: string[],
   ): Promise<void> {
-    return await this.courseSchoolsRepository.linkSchoolsToCourse(
+    return await this.courseSchoolsRepository.assignSchoolsToCourse(
       courseId,
       schoolIds,
     );
   }
 
-  async getAvailableSchoolsForCourseLinking(
+  async getAvailableSchoolsForCourseAssignment(
     courseId: string,
   ): Promise<Partial<School>[]> {
-    return this.courseSchoolsRepository.getAvailableSchoolsForCourseLinking(
+    return this.courseSchoolsRepository.getAvailableSchoolsForCourseAssignment(
       courseId,
     );
   }
 
-  async unlinkSchoolsFromCourse(
+  async unassignSchoolsFromCourse(
     courseId: string,
     schoolIds: string[],
   ): Promise<void> {
-    return this.courseSchoolsRepository.unlinkSchoolsFromCourse(
+    return this.courseSchoolsRepository.unassignSchoolsFromCourse(
       courseId,
       schoolIds,
     );
   }
 
-  async getSchoolsLinkedToCourse(
+  async getSchoolsAssignedToCourse(
     courseId: string,
     pagination: PaginationOptions = {},
     sort: SortOptions = {},
     search?: string,
   ): Promise<{ schools: School[]; total: number }> {
-    return this.courseSchoolsRepository.getSchoolsLinkedToCourse(
+    return this.courseSchoolsRepository.getSchoolsAssignedToCourse(
       courseId,
       pagination,
       sort,

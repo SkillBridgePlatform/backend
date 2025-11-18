@@ -8,7 +8,7 @@ import { SchoolCourseInsert } from '../entities/course.entity';
 export class CourseSchoolsRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
-  async linkSchoolsToCourse(
+  async assignSchoolsToCourse(
     courseId: string,
     schoolIds: string[],
   ): Promise<void> {
@@ -24,12 +24,12 @@ export class CourseSchoolsRepository {
       .upsert(rows, { ignoreDuplicates: true });
 
     if (error) {
-      console.error('Failed to link schools to course:', error);
+      console.error('Failed to assign schools to course:', error);
       throw new Error(error.message);
     }
   }
 
-  async getSchoolsLinkedToCourse(
+  async getSchoolsAssignedToCourse(
     courseId: string,
     pagination: PaginationOptions = {},
     sort?: SortOptions,
@@ -80,7 +80,7 @@ export class CourseSchoolsRepository {
     return { schools, total };
   }
 
-  async getAvailableSchoolsForCourseLinking(
+  async getAvailableSchoolsForCourseAssignment(
     courseId: string,
   ): Promise<Partial<School>[]> {
     const { data: allSchools, error: allSchoolsErr } =
@@ -108,7 +108,7 @@ export class CourseSchoolsRepository {
     return availableSchools;
   }
 
-  async unlinkSchoolsFromCourse(
+  async unassignSchoolsFromCourse(
     courseId: string,
     schoolIds: string[],
   ): Promise<void> {
@@ -121,7 +121,7 @@ export class CourseSchoolsRepository {
       .in('school_id', schoolIds);
 
     if (error) {
-      console.error('Failed to unlink schools from course:', error);
+      console.error('Failed to unassign schools from course:', error);
       throw new Error(error.message);
     }
   }

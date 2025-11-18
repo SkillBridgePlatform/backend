@@ -16,14 +16,14 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import {
+  AssignSchoolsToCourseDocs,
   CreateCourseDocs,
   DeleteCourseDocs,
-  GetAvailableSchoolsForCourseLinkingDocs,
+  GetAvailableSchoolsForCourseAssignmentDocs,
   GetCourseByIdDocs,
   GetCoursesDocs,
-  GetSchoolsLinkedToCourseDocs,
-  LinkSchoolsToCourseDocs,
-  UnlinkSchoolsFromCourseDocs,
+  GetSchoolsAssignedToCourseDocs,
+  UnassignSchoolsFromCourseDocs,
   UpdateCourseDocs,
 } from 'src/docs/courses/courses.docs';
 import { School } from 'src/schools/entities/schools.entity';
@@ -93,8 +93,8 @@ export class AdminCoursesController {
 
   @Roles(UserRole.SuperAdmin)
   @Get(':courseId/schools')
-  @GetSchoolsLinkedToCourseDocs()
-  async getSchoolsLinkedToCourse(
+  @GetSchoolsAssignedToCourseDocs()
+  async getSchoolsAssignedToCourse(
     @Param('courseId') courseId: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
@@ -108,7 +108,7 @@ export class AdminCoursesController {
     };
     const sort: SortOptions = { sortBy, sortDirection };
 
-    return this.coursesService.getSchoolsLinkedToCourse(
+    return this.coursesService.getSchoolsAssignedToCourse(
       courseId,
       pagination,
       sort,
@@ -118,31 +118,31 @@ export class AdminCoursesController {
 
   @Roles(UserRole.SuperAdmin)
   @Get(':courseId/available-schools')
-  @GetAvailableSchoolsForCourseLinkingDocs()
-  async getAvailableSchoolsForCourseLinking(
+  @GetAvailableSchoolsForCourseAssignmentDocs()
+  async getAvailableSchoolsForCourseAssignment(
     @Param('courseId') courseId: string,
   ): Promise<Partial<School>[]> {
-    return this.coursesService.getAvailableSchoolsForCourseLinking(courseId);
+    return this.coursesService.getAvailableSchoolsForCourseAssignment(courseId);
   }
 
   @Roles(UserRole.SuperAdmin)
   @Post(':courseId/schools')
-  @LinkSchoolsToCourseDocs()
-  async linkSchoolsToCourse(
+  @AssignSchoolsToCourseDocs()
+  async assignSchoolsToCourse(
     @Param('courseId') courseId: string,
     @Body('schoolIds') schoolIds: string[],
   ): Promise<void> {
-    return this.coursesService.linkSchoolsToCourse(courseId, schoolIds);
+    return this.coursesService.assignSchoolsToCourse(courseId, schoolIds);
   }
 
   @Roles(UserRole.SuperAdmin)
   @Delete(':courseId/schools')
-  @UnlinkSchoolsFromCourseDocs()
-  async unlinkSchoolsFromCourse(
+  @UnassignSchoolsFromCourseDocs()
+  async unassignSchoolsFromCourse(
     @Param('courseId') courseId: string,
     @Body('schoolIds') schoolIds: string[],
   ): Promise<void> {
-    return this.coursesService.unlinkSchoolsFromCourse(courseId, schoolIds);
+    return this.coursesService.unassignSchoolsFromCourse(courseId, schoolIds);
   }
 
   //#endregion
