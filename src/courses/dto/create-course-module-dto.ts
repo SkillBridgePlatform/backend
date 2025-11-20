@@ -19,9 +19,9 @@ export class CreateCourseModuleDto {
   @Min(0)
   order?: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsInt()
   @Min(0)
-  estimated_duration: number;
+  estimated_duration?: number;
 }

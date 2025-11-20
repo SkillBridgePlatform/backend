@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { Course } from 'src/courses/entities/course.entity';
 import { Student } from 'src/students/entities/students.entity';
 import { User } from 'src/users/entities/user.entity';
-import { ClassStudentsRepository } from './class-students.repository';
-import { ClassTeachersRepository } from './class-teachers.repository';
-import { ClassesRepository } from './classes.repository';
 import { CreateClassDto } from './dto/create-class-dto';
 import { UpdateClassDto } from './dto/update-class-dto';
 import { Class, ClassFilters } from './entities/classes.entity';
+import { ClassCoursesRepository } from './repositories/class-courses.repository';
+import { ClassStudentsRepository } from './repositories/class-students.repository';
+import { ClassTeachersRepository } from './repositories/class-teachers.repository';
+import { ClassesRepository } from './repositories/classes.repository';
 
 @Injectable()
 export class ClassesService {
@@ -16,6 +18,7 @@ export class ClassesService {
     private readonly classesRepository: ClassesRepository,
     private readonly classTeachersRepository: ClassTeachersRepository,
     private readonly classStudentsRepository: ClassStudentsRepository,
+    private readonly classCoursesRepository: ClassCoursesRepository,
   ) {}
 
   // Class CRUD
@@ -150,6 +153,48 @@ export class ClassesService {
       pagination,
       sort,
       search,
+    );
+  }
+
+  // Class Courses
+
+  async assignCoursesToClass(
+    classId: string,
+    courseIds: string[],
+  ): Promise<void> {
+    return await this.classCoursesRepository.assignCoursesToClass(
+      classId,
+      courseIds,
+    );
+  }
+
+  async getCoursesForClass(
+    classId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ courses: Course[]; total: number }> {
+    return this.classCoursesRepository.getCoursesForClass(
+      classId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
+  async getAvailableCoursesForClass(
+    classId: string,
+  ): Promise<Partial<Course>[]> {
+    return this.classCoursesRepository.getAvailableCoursesForClass(classId);
+  }
+
+  async unassignCoursesFromClass(
+    classId: string,
+    courseIds: string[],
+  ): Promise<void> {
+    return this.classCoursesRepository.unassignCoursesFromClass(
+      classId,
+      courseIds,
     );
   }
 }

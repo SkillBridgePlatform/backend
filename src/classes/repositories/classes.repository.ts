@@ -1,9 +1,9 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { SupabaseService } from 'src/supabase/supabase.service';
-import { CreateClassDto } from './dto/create-class-dto';
-import { UpdateClassDto } from './dto/update-class-dto';
-import { Class, ClassInsert } from './entities/classes.entity';
+import { CreateClassDto } from '../dto/create-class-dto';
+import { UpdateClassDto } from '../dto/update-class-dto';
+import { Class, ClassInsert } from '../entities/classes.entity';
 
 @Injectable()
 export class ClassesRepository {

@@ -3,7 +3,7 @@ import { UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { User } from 'src/users/entities/user.entity';
-import { Class, ClassTeacherInsert } from './entities/classes.entity';
+import { Class, ClassTeacherInsert } from '../entities/classes.entity';
 
 @Injectable()
 export class ClassTeachersRepository {

@@ -38,11 +38,11 @@ export class CreateLessonDto {
   @IsString()
   title: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsInt()
   @Min(0)
-  estimated_duration: number;
+  estimated_duration?: number;
 
   @ApiProperty({ type: [ContentBlockDto] })
   @IsArray()
