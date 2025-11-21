@@ -1,21 +1,29 @@
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ClassCoursesRepository } from 'src/classes/repositories/class-courses.repository';
+import { ClassStudentsRepository } from 'src/classes/repositories/class-students.repository';
+import { CoursesRepository } from 'src/courses/repositories/courses.repository';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { SupabaseModule } from '../supabase/supabase.module';
-import { AdminStudentsController } from './admin-students.controller';
-import { StudentsController } from './students.controller';
-import { StudentsRepository } from './students.repository';
-import { StudentsService } from './students.service';
+import { AdminStudentsController } from './controllers/admin-students.controller';
+import { StudentsController } from './controllers/students.controller';
+import { StudentsRepository } from './repositories/students.repository';
+import { AdminStudentsService } from './services/admin-students.service';
+import { StudentsService } from './services/students.service';
 
 @Module({
   imports: [SupabaseModule],
   controllers: [AdminStudentsController, StudentsController],
   providers: [
     StudentsService,
-    StudentsRepository,
+    AdminStudentsService,
     FileUploadService,
     JwtService,
+    CoursesRepository,
+    StudentsRepository,
+    ClassStudentsRepository,
+    ClassCoursesRepository,
   ],
-  exports: [StudentsService],
+  exports: [AdminStudentsService, StudentsService],
 })
 export class StudentsModule {}

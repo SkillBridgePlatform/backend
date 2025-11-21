@@ -14,6 +14,8 @@ import { Course, CourseWithModulesAndLessons } from '../entities/course.entity';
 export class CoursesRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
+  // Admin
+
   generateSlug(title: string): string {
     return title
       .toLowerCase()
@@ -174,5 +176,19 @@ export class CoursesRepository {
       ...data,
       modules,
     };
+  }
+
+  // Student
+
+  async getCoursesByIds(courseIds: string[]): Promise<Course[]> {
+    if (!courseIds.length) return [];
+
+    const { data, error } = await this.supabase.client
+      .from('courses')
+      .select('*')
+      .in('id', courseIds);
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data as Course[];
   }
 }

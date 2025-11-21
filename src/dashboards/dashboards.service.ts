@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ClassesRepository } from 'src/classes/repositories/classes.repository';
 import { UserRole } from 'src/common/enums';
 import { SchoolsRepository } from 'src/schools/schools.repository';
-import { StudentsRepository } from 'src/students/students.repository';
+import { StudentsRepository } from 'src/students/repositories/students.repository';
 import { UsersRepository } from 'src/users/users.repository';
 import { SchoolDashboard } from './entities/school-dashboard.entity';
 import { SuperAdminDashboard } from './entities/super-admin-dashboard.entity';

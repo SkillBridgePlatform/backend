@@ -2,9 +2,9 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ApiTags } from '@nestjs/swagger';
 import { StudentLoginDocs } from 'src/docs/students/students.docs';
+import { StudentsService } from 'src/students/services/students.service';
 import { StudentLoginDto } from '../students/dto/student-login-dto';
 import { StudentLoginResponseDto } from '../students/dto/student-login-response-dto';
-import { StudentsService } from '../students/students.service';
 
 @ApiTags('Auth')
 @Controller('auth')

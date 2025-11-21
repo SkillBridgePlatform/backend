@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { Student } from 'src/students/entities/students.entity';
 import { SupabaseService } from 'src/supabase/supabase.service';
@@ -7,6 +7,8 @@ import { ClassStudentInsert } from '../entities/classes.entity';
 @Injectable()
 export class ClassStudentsRepository {
   constructor(private readonly supabase: SupabaseService) {}
+
+  // Admin
 
   async assignStudentsToClass(
     classId: string,
@@ -121,5 +123,17 @@ export class ClassStudentsRepository {
       console.error('Failed to unassign students from class:', error);
       throw new Error(error.message);
     }
+  }
+
+  // Student
+
+  async getStudentClassIds(studentId: string): Promise<string[]> {
+    const { data, error } = await this.supabase.client
+      .from('class_students')
+      .select('class_id')
+      .eq('student_id', studentId);
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return (data || []).map((d) => d.class_id);
   }
 }

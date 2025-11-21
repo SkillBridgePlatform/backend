@@ -1,9 +1,13 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { GetStudentProfileDocs } from 'src/docs/students/students.docs';
-import { StudentsService } from './students.service';
+import { Course } from 'src/courses/entities/course.entity';
+import {
+  GetStudentCoursesDocs,
+  GetStudentProfileDocs,
+} from 'src/docs/students/students.docs';
+import { StudentsService } from '../services/students.service';
 
 @ApiTags('Students')
 @ApiBearerAuth('access-token')
@@ -17,5 +21,13 @@ export class StudentsController {
   async getProfile(@Req() req: Request) {
     const studentId = req.user!.id;
     return this.studentsService.getProfile(studentId);
+  }
+
+  @Get(':studentId/courses')
+  @GetStudentCoursesDocs()
+  async getStudentCourses(
+    @Param('studentId') studentId: string,
+  ): Promise<Course[]> {
+    return this.studentsService.getStudentCourses(studentId);
   }
 }
