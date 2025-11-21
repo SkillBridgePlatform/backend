@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
 import { Student } from 'src/students/entities/students.entity';
 import { SupabaseService } from 'src/supabase/supabase.service';
-import { ClassStudentInsert } from './entities/classes.entity';
+import { ClassStudentInsert } from '../entities/classes.entity';
 
 @Injectable()
 export class ClassStudentsRepository {

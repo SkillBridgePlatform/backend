@@ -52,4 +52,12 @@ export class LessonsService {
 
     return created;
   }
+
+  async deleteLesson(id: string): Promise<void> {
+    const lessonToDelete = await this.lessonsRepository.getLessonById(id);
+    if (!lessonToDelete) {
+      throw new NotFoundException('Lesson not found');
+    }
+    return this.lessonsRepository.deleteLesson(id);
+  }
 }

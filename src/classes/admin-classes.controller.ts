@@ -18,6 +18,13 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Class } from 'src/classes/entities/classes.entity';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { Course } from 'src/courses/entities/course.entity';
+import {
+  AssignCoursesToClassDocs,
+  GetAvailableCoursesForClassDocs,
+  GetCoursesForClassDocs,
+  UnassignCoursesFromClassDocs,
+} from 'src/docs/classes/class-courses.docs';
 import {
   AssignStudentsToClassDocs,
   GetAvailableStudentsForClassDocs,
@@ -252,6 +259,64 @@ export class AdminClassesController {
     @Param('classId') classId: string,
   ): Promise<Student[]> {
     return this.classesService.getAvailableStudentsForClass(classId);
+  }
+
+  //#endregion
+
+  //#region Class Courses
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
+  @Get(':classId/courses')
+  @GetCoursesForClassDocs()
+  async getCoursesForClass(
+    @Param('classId') classId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortDirection') sortDirection?: SortDirection,
+  ): Promise<{ courses: any[]; total: number }> {
+    const pagination: PaginationOptions = {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+    const sort: SortOptions = { sortBy, sortDirection };
+
+    return this.classesService.getCoursesForClass(
+      classId,
+      pagination,
+      sort,
+      search,
+    );
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Post(':classId/courses')
+  @AssignCoursesToClassDocs()
+  async assignCoursesToClass(
+    @Param('classId') classId: string,
+    @Body('courseIds') courseIds: string[],
+  ): Promise<void> {
+    return this.classesService.assignCoursesToClass(classId, courseIds);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Delete(':classId/courses')
+  @UnassignCoursesFromClassDocs()
+  async unassignCoursesFromClass(
+    @Param('classId') classId: string,
+    @Body('courseIds') courseIds: string[],
+  ): Promise<void> {
+    return this.classesService.unassignCoursesFromClass(classId, courseIds);
+  }
+
+  @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
+  @Get(':classId/available-courses')
+  @GetAvailableCoursesForClassDocs()
+  async getAvailableCoursesForClass(
+    @Param('classId') classId: string,
+  ): Promise<Partial<Course>[]> {
+    return this.classesService.getAvailableCoursesForClass(classId);
   }
 
   //#endregion

@@ -39,6 +39,36 @@ export type Database = {
   };
   public: {
     Tables: {
+      class_courses: {
+        Row: {
+          class_id: string;
+          course_id: string;
+        };
+        Insert: {
+          class_id: string;
+          course_id: string;
+        };
+        Update: {
+          class_id?: string;
+          course_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'class_courses_class_id_fkey';
+            columns: ['class_id'];
+            isOneToOne: false;
+            referencedRelation: 'classes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'class_courses_course_id_fkey';
+            columns: ['course_id'];
+            isOneToOne: false;
+            referencedRelation: 'courses';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       class_students: {
         Row: {
           class_id: string;
@@ -173,7 +203,7 @@ export type Database = {
         Row: {
           created_at: string | null;
           description: string | null;
-          estimated_duration: number;
+          estimated_duration: number | null;
           id: string;
           language: Database['public']['Enums']['user_language'];
           slug: string;
@@ -185,7 +215,7 @@ export type Database = {
         Insert: {
           created_at?: string | null;
           description?: string | null;
-          estimated_duration: number;
+          estimated_duration?: number | null;
           id?: string;
           language?: Database['public']['Enums']['user_language'];
           slug: string;
@@ -197,7 +227,7 @@ export type Database = {
         Update: {
           created_at?: string | null;
           description?: string | null;
-          estimated_duration?: number;
+          estimated_duration?: number | null;
           id?: string;
           language?: Database['public']['Enums']['user_language'];
           slug?: string;
@@ -257,7 +287,7 @@ export type Database = {
           course_id: string;
           created_at: string | null;
           description: string | null;
-          estimated_duration: number;
+          estimated_duration: number | null;
           id: string;
           order: number;
           slug: string;
@@ -268,7 +298,7 @@ export type Database = {
           course_id: string;
           created_at?: string | null;
           description?: string | null;
-          estimated_duration: number;
+          estimated_duration?: number | null;
           id?: string;
           order: number;
           slug: string;
@@ -279,7 +309,7 @@ export type Database = {
           course_id?: string;
           created_at?: string | null;
           description?: string | null;
-          estimated_duration?: number;
+          estimated_duration?: number | null;
           id?: string;
           order?: number;
           slug?: string;
@@ -292,6 +322,45 @@ export type Database = {
             columns: ['course_id'];
             isOneToOne: false;
             referencedRelation: 'courses';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      school_courses: {
+        Row: {
+          course_id: string;
+          created_at: string;
+          id: string;
+          school_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          course_id: string;
+          created_at?: string;
+          id?: string;
+          school_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          course_id?: string;
+          created_at?: string;
+          id?: string;
+          school_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'school_courses_course_id_fkey';
+            columns: ['course_id'];
+            isOneToOne: false;
+            referencedRelation: 'courses';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'school_courses_school_id_fkey';
+            columns: ['school_id'];
+            isOneToOne: false;
+            referencedRelation: 'schools';
             referencedColumns: ['id'];
           },
         ];

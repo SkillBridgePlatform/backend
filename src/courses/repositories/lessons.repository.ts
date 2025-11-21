@@ -59,7 +59,6 @@ export class LessonsRepository {
 
     if (!title) throw new BadRequestException('Title is required');
 
-    // Generate unique slug
     const baseSlug = this.generateSlug(title);
     let slug = baseSlug;
     let counter = 1;
@@ -78,7 +77,6 @@ export class LessonsRepository {
       counter++;
     }
 
-    // Determine lesson order
     const { data: lastLesson, error: orderError } = await this.supabase.client
       .from('lessons')
       .select('order')
@@ -90,13 +88,12 @@ export class LessonsRepository {
     if (orderError) throw new InternalServerErrorException(orderError.message);
     const order = lastLesson?.order != null ? lastLesson.order + 1 : 0;
 
-    // Insert lesson
     const { data: lessonData, error: lessonError } = await this.supabase.client
       .from('lessons')
       .insert({
         module_id: moduleId,
         title,
-        estimated_duration,
+        estimated_duration: estimated_duration ?? null,
         order,
         slug,
       })
@@ -330,6 +327,15 @@ export class LessonsRepository {
     if (error) throw new InternalServerErrorException(error.message);
 
     return data as LessonWithBlocks;
+  }
+
+  async deleteLesson(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('lessons')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw new InternalServerErrorException(error.message);
   }
 
   generateSlug(title: string): string {

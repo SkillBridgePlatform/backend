@@ -9,6 +9,9 @@ export type ClassTeacherInsert = TablesInsert<'class_teachers'>;
 export type ClassStudent = Tables<'class_students'>;
 export type ClassStudentInsert = TablesInsert<'class_students'>;
 
+export type ClassCourse = Tables<'class_courses'>;
+export type ClassCourseInsert = TablesInsert<'class_courses'>;
+
 export interface ClassFilters {
   teacher_id?: string;
   school_id?: string;

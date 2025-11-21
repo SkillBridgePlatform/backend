@@ -43,3 +43,59 @@ export const DeleteCourseDocs = () =>
     ApiResponse({ status: 200, description: 'Course successfully deleted' }),
     ApiResponse({ status: 404, description: 'Course not found' }),
   );
+
+export const GetCourseWithModulesAndLessonsDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Retrieve a course with its children' }),
+    ApiResponse({ status: 200, description: 'Course found' }),
+    ApiResponse({ status: 404, description: 'Course not found' }),
+  );
+
+export const GetSchoolsAssignedToCourseDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary:
+        'Retrieve schools linked to a course with optional pagination and search',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'List of schools with total count',
+    }),
+    ApiQuery({
+      name: 'course_id',
+      required: true,
+      description: 'Course UUID',
+    }),
+    ApiQuery({ name: 'limit', required: false }),
+    ApiQuery({ name: 'offset', required: false }),
+    ApiQuery({ name: 'search', required: false }),
+    ApiQuery({ name: 'sortBy', required: false }),
+    ApiQuery({ name: 'sortDirection', required: false }),
+  );
+
+export const GetAvailableSchoolsForCourseAssignmentDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary:
+        'Retrieve all available schools who are not yet assigned to this course',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'List of available schools with total count',
+    }),
+  );
+
+export const AssignSchoolsToCourseDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Assign schools to course' }),
+    ApiResponse({ status: 200, description: 'Schools assigned successfully' }),
+  );
+
+export const UnassignSchoolsFromCourseDocs = () =>
+  applyDecorators(
+    ApiOperation({ summary: 'Unassign schools from course' }),
+    ApiResponse({
+      status: 200,
+      description: 'Schools successfully unassigned',
+    }),
+  );

@@ -7,6 +7,7 @@ import { AdminModulesController } from './controllers/admin-modules.controller';
 import { CourseModulesRepository } from './repositories/course-modules.repository';
 import { CoursesRepository } from './repositories/courses.repository';
 import { LessonsRepository } from './repositories/lessons.repository';
+import { CourseSchoolsRepository } from './repositories/school-courses.repository';
 import { CourseModulesService } from './services/course-modules.service';
 import { CoursesService } from './services/courses.service';
 import { LessonsService } from './services/lessons.service';
@@ -23,6 +24,7 @@ import { LessonsService } from './services/lessons.service';
     LessonsService,
     CoursesService,
     CoursesRepository,
+    CourseSchoolsRepository,
     LessonsRepository,
     CourseModulesService,
     CourseModulesRepository,

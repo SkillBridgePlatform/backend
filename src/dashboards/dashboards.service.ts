@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ClassesRepository } from 'src/classes/classes.repository';
+import { ClassesRepository } from 'src/classes/repositories/classes.repository';
 import { UserRole } from 'src/common/enums';
 import { SchoolsRepository } from 'src/schools/schools.repository';
 import { StudentsRepository } from 'src/students/students.repository';

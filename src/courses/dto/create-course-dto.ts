@@ -33,11 +33,11 @@ export class CreateCourseDto {
   @IsString({ each: true })
   tags?: string[];
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsInt()
   @Min(0)
-  estimated_duration: number;
+  estimated_duration?: number;
 
   @ApiPropertyOptional({ enum: CourseStatus })
   @IsNotEmpty()

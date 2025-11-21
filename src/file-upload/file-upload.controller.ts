@@ -1,14 +1,10 @@
+import { Controller, Delete, Get, Query, UseGuards } from '@nestjs/common';
 import {
-  Controller,
-  Delete,
-  Post,
-  Query,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AdminJwtAuthGuard } from 'src/auth/guards/admin-jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
@@ -26,23 +22,27 @@ export class FileUploadController {
   ) {}
 
   @Roles(UserRole.SuperAdmin)
-  @Post('upload-video-to-wistia')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadVideo(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new Error('No file provided');
-    }
-
-    const { hashedId, videoUrl } =
-      await this.wistiaFileUploadService.uploadVideo(
-        file.buffer,
-        file.originalname,
-      );
-
-    return {
-      hashedId,
-      videoUrl,
-    };
+  @Get('request-wistia-upload')
+  @ApiOperation({ summary: 'Get Wistia upload data for a video' })
+  @ApiQuery({
+    name: 'courseId',
+    type: String,
+    required: true,
+    description: 'The course ID for which to generate upload data',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Upload data generated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        projectId: { type: 'string', example: 'yubrqaceql' },
+        uploadToken: { type: 'string', example: 'short-lived-token' },
+      },
+    },
+  })
+  async requestWistiaUpload(@Query('courseId') courseId: string) {
+    return this.wistiaFileUploadService.getUploadData(courseId);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)

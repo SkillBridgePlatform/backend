@@ -2,6 +2,7 @@ import { SchoolInsert } from './entities/schools.entity';
 // src/schools/repository/schools-supabase.repository.ts
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { Course } from 'src/courses/entities/course.entity';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateSchoolDto } from './dto/create-school-dto';
 import { UpdateSchoolDto } from './dto/update-school-dto';
@@ -10,6 +11,42 @@ import { School } from './entities/schools.entity';
 @Injectable()
 export class SchoolsRepository {
   constructor(private readonly supabase: SupabaseService) {}
+
+  async getCoursesForSchool(
+    schoolId: string,
+    pagination: PaginationOptions = {},
+    sort?: SortOptions,
+    search?: string,
+  ): Promise<{ courses: Course[]; total: number }> {
+    let query = this.supabase.client
+      .from('school_courses')
+      .select('courses(*), course_id', { count: 'exact' })
+      .eq('school_id', schoolId);
+
+    if (search) {
+      const searchPattern = `%${search}%`;
+      query = query.ilike('courses.title', searchPattern);
+    }
+
+    const allowedSortFields = ['courses.title', 'classes.created_at'];
+    if (sort?.sortBy && allowedSortFields.includes(`courses.${sort.sortBy}`)) {
+      const ascending = sort.sortDirection !== 'desc';
+      query = query.order(`courses.${sort.sortBy}`, { ascending });
+    }
+
+    if (pagination.limit !== undefined) query = query.limit(pagination.limit);
+    if (pagination.offset !== undefined && pagination.limit !== undefined)
+      query = query.range(
+        pagination.offset,
+        pagination.offset + pagination.limit - 1,
+      );
+
+    const { data, error, count } = await query;
+    if (error) throw new Error(error.message);
+
+    const courses = (data ?? []).map((row) => row.courses as Course);
+    return { courses, total: count ?? 0 };
+  }
 
   async getSchools(
     pagination: PaginationOptions = {},

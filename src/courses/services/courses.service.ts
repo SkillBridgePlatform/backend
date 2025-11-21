@@ -1,13 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { School } from 'src/schools/entities/schools.entity';
 import { CreateCourseDto } from '../dto/create-course-dto';
 import { UpdateCourseDto } from '../dto/update-course-dto';
-import { Course } from '../entities/course.entity';
+import { Course, CourseWithModulesAndLessons } from '../entities/course.entity';
 import { CoursesRepository } from '../repositories/courses.repository';
+import { CourseSchoolsRepository } from '../repositories/school-courses.repository';
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly coursesRepository: CoursesRepository) {}
+  constructor(
+    private readonly coursesRepository: CoursesRepository,
+    private readonly courseSchoolsRepository: CourseSchoolsRepository,
+  ) {}
 
   async getCourses(
     pagination: PaginationOptions = {},
@@ -43,5 +48,60 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
     return this.coursesRepository.deleteCourse(id);
+  }
+
+  async getCourseWithModulesAndLessons(
+    courseId: string,
+  ): Promise<CourseWithModulesAndLessons | null> {
+    const course =
+      await this.coursesRepository.getCourseWithModulesAndLessons(courseId);
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+    return course;
+  }
+
+  // Course Schools
+
+  async assignSchoolsToCourse(
+    courseId: string,
+    schoolIds: string[],
+  ): Promise<void> {
+    return await this.courseSchoolsRepository.assignSchoolsToCourse(
+      courseId,
+      schoolIds,
+    );
+  }
+
+  async getAvailableSchoolsForCourseAssignment(
+    courseId: string,
+  ): Promise<Partial<School>[]> {
+    return this.courseSchoolsRepository.getAvailableSchoolsForCourseAssignment(
+      courseId,
+    );
+  }
+
+  async unassignSchoolsFromCourse(
+    courseId: string,
+    schoolIds: string[],
+  ): Promise<void> {
+    return this.courseSchoolsRepository.unassignSchoolsFromCourse(
+      courseId,
+      schoolIds,
+    );
+  }
+
+  async getSchoolsAssignedToCourse(
+    courseId: string,
+    pagination: PaginationOptions = {},
+    sort: SortOptions = {},
+    search?: string,
+  ): Promise<{ schools: School[]; total: number }> {
+    return this.courseSchoolsRepository.getSchoolsAssignedToCourse(
+      courseId,
+      pagination,
+      sort,
+      search,
+    );
   }
 }

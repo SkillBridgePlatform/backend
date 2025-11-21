@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ClassesRepository } from 'src/classes/classes.repository';
+import { ClassesRepository } from 'src/classes/repositories/classes.repository';
 import { SchoolsRepository } from 'src/schools/schools.repository';
 import { StudentsRepository } from 'src/students/students.repository';
 import { UsersRepository } from 'src/users/users.repository';
