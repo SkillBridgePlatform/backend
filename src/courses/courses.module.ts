@@ -4,6 +4,7 @@ import { AdminCoursesController } from './controllers/admin-courses.controller';
 import { AdminLessonsController } from './controllers/admin-lessons.controller';
 import { AdminModuleLessonsController } from './controllers/admin-module-lessons.controller';
 import { AdminModulesController } from './controllers/admin-modules.controller';
+import { CoursesController } from './controllers/courses.controller';
 import { CourseModulesRepository } from './repositories/course-modules.repository';
 import { CoursesRepository } from './repositories/courses.repository';
 import { LessonsRepository } from './repositories/lessons.repository';
@@ -14,6 +15,7 @@ import { LessonsService } from './services/lessons.service';
 
 @Module({
   controllers: [
+    CoursesController,
     AdminCoursesController,
     AdminCourseModulesController,
     AdminModulesController,

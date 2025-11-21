@@ -145,24 +145,27 @@ export class CoursesRepository {
     if (error) throw new InternalServerErrorException(error.message);
   }
 
-  async getCourseWithModulesAndLessons(
-    courseId: string,
+  private async fetchCourseWithModulesAndLessons(
+    filterKey: 'id' | 'slug',
+    filterValue: string,
   ): Promise<CourseWithModulesAndLessons | null> {
     const { data, error } = await this.supabase.client
       .from('courses')
       .select(
         `
-      *,
-      modules (
         *,
-        lessons (*)
+        modules (
+          *,
+          lessons (*)
+        )
+      `,
       )
-    `,
-      )
-      .eq('id', courseId)
+      .eq(filterKey, filterValue)
       .maybeSingle();
 
-    if (error) throw new InternalServerErrorException(error.message);
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
     if (!data) return null;
 
     const modules = (data.modules || [])
@@ -176,6 +179,18 @@ export class CoursesRepository {
       ...data,
       modules,
     };
+  }
+
+  async getCourseWithModulesAndLessonsById(
+    courseId: string,
+  ): Promise<CourseWithModulesAndLessons | null> {
+    return this.fetchCourseWithModulesAndLessons('id', courseId);
+  }
+
+  async getCourseWithModulesAndLessonsBySlug(
+    slug: string,
+  ): Promise<CourseWithModulesAndLessons | null> {
+    return this.fetchCourseWithModulesAndLessons('slug', slug);
   }
 
   // Student

@@ -50,11 +50,24 @@ export class CoursesService {
     return this.coursesRepository.deleteCourse(id);
   }
 
-  async getCourseWithModulesAndLessons(
+  async getCourseWithModulesAndLessonsBySlug(
+    courseSlug: string,
+  ): Promise<CourseWithModulesAndLessons | null> {
+    const course =
+      await this.coursesRepository.getCourseWithModulesAndLessonsBySlug(
+        courseSlug,
+      );
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+    return course;
+  }
+
+  async getCourseWithModulesAndLessonsById(
     courseId: string,
   ): Promise<CourseWithModulesAndLessons | null> {
     const course =
-      await this.coursesRepository.getCourseWithModulesAndLessons(courseId);
+      await this.coursesRepository.getCourseWithModulesAndLessonsById(courseId);
     if (!course) {
       throw new NotFoundException('Course not found');
     }
