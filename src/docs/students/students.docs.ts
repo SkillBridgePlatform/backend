@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 export const StudentLoginDocs = () =>
   applyDecorators(
@@ -46,5 +46,16 @@ export const GetStudentCoursesDocs = () =>
       status: 200,
       description: 'List of courses',
     }),
-    ApiQuery({ name: 'studentId' }),
+  );
+
+export const StartStudentCourseDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Start a course for a student',
+      description: 'Creates a course progress record for the student',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Course started successfully',
+    }),
   );

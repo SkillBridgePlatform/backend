@@ -199,6 +199,57 @@ export type Database = {
           },
         ];
       };
+      course_progress: {
+        Row: {
+          completed_at: string | null;
+          course_id: string;
+          created_at: string;
+          id: string;
+          progress_percentage: number;
+          started_at: string | null;
+          status: string;
+          student_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          course_id: string;
+          created_at?: string;
+          id?: string;
+          progress_percentage?: number;
+          started_at?: string | null;
+          status?: string;
+          student_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          course_id?: string;
+          created_at?: string;
+          id?: string;
+          progress_percentage?: number;
+          started_at?: string | null;
+          status?: string;
+          student_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'course_progress_course_id_fkey';
+            columns: ['course_id'];
+            isOneToOne: false;
+            referencedRelation: 'courses';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'course_progress_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'students';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       courses: {
         Row: {
           created_at: string | null;
