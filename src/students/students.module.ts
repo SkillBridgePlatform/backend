@@ -9,6 +9,7 @@ import { SupabaseModule } from '../supabase/supabase.module';
 import { AdminStudentsController } from './controllers/admin-students.controller';
 import { StudentsController } from './controllers/students.controller';
 import { StudentCoursesRepository } from './repositories/student-courses.repository';
+import { StudentLessonsRepository } from './repositories/student-lessons.repository';
 import { StudentsRepository } from './repositories/students.repository';
 import { AdminStudentsService } from './services/admin-students.service';
 import { StudentsService } from './services/students.service';
@@ -27,6 +28,7 @@ import { StudentsService } from './services/students.service';
     ClassCoursesRepository,
     CourseModulesRepository,
     StudentCoursesRepository,
+    StudentLessonsRepository,
   ],
   exports: [AdminStudentsService, StudentsService],
 })

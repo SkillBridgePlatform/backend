@@ -443,6 +443,109 @@ export type Database = {
         };
         Relationships: [];
       };
+      student_content_block_progress: {
+        Row: {
+          completed_at: string | null;
+          content_block_id: string;
+          created_at: string;
+          id: string;
+          last_video_position: number | null;
+          started_at: string | null;
+          student_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          content_block_id: string;
+          created_at?: string;
+          id?: string;
+          last_video_position?: number | null;
+          started_at?: string | null;
+          student_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          content_block_id?: string;
+          created_at?: string;
+          id?: string;
+          last_video_position?: number | null;
+          started_at?: string | null;
+          student_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'student_content_block_progress_block_fkey';
+            columns: ['content_block_id'];
+            isOneToOne: false;
+            referencedRelation: 'content_blocks';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_content_block_progress_student_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'students';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      student_lesson_progress: {
+        Row: {
+          completed_at: string | null;
+          created_at: string;
+          id: string;
+          last_content_block_id: string | null;
+          lesson_id: string;
+          started_at: string | null;
+          student_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          last_content_block_id?: string | null;
+          lesson_id: string;
+          started_at?: string | null;
+          student_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          last_content_block_id?: string | null;
+          lesson_id?: string;
+          started_at?: string | null;
+          student_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'student_lesson_progress_content_block_fkey';
+            columns: ['last_content_block_id'];
+            isOneToOne: false;
+            referencedRelation: 'content_blocks';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_lesson_progress_lesson_fkey';
+            columns: ['lesson_id'];
+            isOneToOne: false;
+            referencedRelation: 'lessons';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_lesson_progress_student_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'students';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       students: {
         Row: {
           created_at: string | null;

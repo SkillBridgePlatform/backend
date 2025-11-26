@@ -11,8 +11,10 @@ import {
   StudentCourse,
   StudentCourseDetails,
 } from '../entities/student-course.entity';
+import { ModuleWithLessonSummaries } from '../entities/student-lesson.entity';
 import { Student } from '../entities/students.entity';
 import { StudentCoursesRepository } from '../repositories/student-courses.repository';
+import { StudentLessonsRepository } from '../repositories/student-lessons.repository';
 import { StudentsRepository } from '../repositories/students.repository';
 
 @Injectable()
@@ -24,6 +26,7 @@ export class StudentsService {
     private readonly classStudentsRepository: ClassStudentsRepository,
     private readonly courseModulesRepository: CourseModulesRepository,
     private readonly studentCoursesRepository: StudentCoursesRepository,
+    private readonly studentLessonsRepository: StudentLessonsRepository,
   ) {}
 
   async validateStudent(username: string, pin: string): Promise<Student> {
@@ -97,39 +100,66 @@ export class StudentsService {
       );
     if (!courseData) return null;
 
-    const modulesWithLessons = (courseData.modules || [])
-      .sort((a, b) => a.order - b.order)
-      .map((module) => ({
-        ...module,
-        lessons: (module.lessons || []).sort((a, b) => a.order - b.order),
-      }));
+    // Sort modules and lessons
+    const modules = (courseData.modules || []).sort(
+      (a, b) => a.order - b.order,
+    );
 
-    const progressRecords =
-      await this.studentCoursesRepository.getCourseProgressForStudent(
+    const lessonIds = modules.flatMap((module) =>
+      (module.lessons || []).map((lesson) => lesson.id),
+    );
+
+    // Fetch course and lesson progress in parallel
+    const [courseProgressList, lessonProgressRecords] = await Promise.all([
+      this.studentCoursesRepository.getCourseProgressForStudent(studentId, [
+        courseData.id,
+      ]),
+      this.studentLessonsRepository.getStudentLessonProgress(
         studentId,
-        [courseData.id],
-      );
-    const progress = progressRecords?.[0];
+        lessonIds,
+      ),
+    ]);
 
-    const progressPercentage = progress?.progress_percentage ?? 0;
+    const courseProgress = courseProgressList?.[0];
+    const progressPercentage = courseProgress?.progress_percentage ?? 0;
 
-    const status: StudentCourse['status'] =
-      progressPercentage === 0
-        ? 'not_started'
-        : progressPercentage >= 100
-          ? 'completed'
-          : 'in_progress';
+    const status: StudentCourse['status'] = !courseProgress
+      ? 'not_started'
+      : progressPercentage >= 100
+        ? 'completed'
+        : 'in_progress';
+
+    // Map modules to ModuleWithLessonSummaries
+    const modulesWithLessonSummaries: ModuleWithLessonSummaries[] = modules.map(
+      (module) => ({
+        module,
+        lessonSummaries: (module.lessons || [])
+          .sort((a, b) => a.order - b.order)
+          .map((lesson) => {
+            const progress = lessonProgressRecords.find(
+              (lp) => lp.lesson_id === lesson.id,
+            );
+
+            return {
+              id: lesson.id,
+              title: lesson.title,
+              estimated_duration: lesson.estimated_duration ?? null,
+              isCompleted: progress?.completed_at != null,
+            };
+          }),
+      }),
+    );
 
     const studentCourse: StudentCourse = {
       course: courseData,
-      moduleCount: modulesWithLessons.length,
+      moduleCount: modules.length,
       progressPercentage,
       status,
     };
 
     return {
       studentCourse,
-      modulesWithLessons,
+      modulesWithLessonSummaries,
     };
   }
 
