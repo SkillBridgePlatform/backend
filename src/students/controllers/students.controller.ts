@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
@@ -7,7 +15,10 @@ import {
   GetStudentLessonsDocs,
   GetStudentProfileDocs,
   StartStudentCourseDocs,
+  StartStudentLessonDocs,
+  UpdateContentBlockProgressDocs,
 } from 'src/docs/students/students.docs';
+import { UpdateContentBlockProgressDto } from '../dto/update-content-block-progress-dto';
 import {
   StudentCourse,
   StudentCourseDetails,
@@ -62,5 +73,30 @@ export class StudentsController {
     @Param('courseId') courseId: string,
   ): Promise<void> {
     return this.studentsService.startStudentCourse(studentId, courseId);
+  }
+
+  @Post(':studentId/lessons/:lessonSlug/start')
+  @StartStudentLessonDocs()
+  async startStudentLesson(
+    @Param('studentId') studentId: string,
+    @Param('lessonSlug') lessonSlug: string,
+  ): Promise<void> {
+    return this.studentsService.startStudentLesson(studentId, lessonSlug);
+  }
+
+  @Post(':studentId/lessons/:lessonId/blocks/:blockId/progress')
+  @UpdateContentBlockProgressDocs()
+  async updateContentBlockProgress(
+    @Param('studentId') studentId: string,
+    @Param('lessonId') lessonId: string,
+    @Param('blockId') blockId: string,
+    @Body() updates: UpdateContentBlockProgressDto,
+  ): Promise<void> {
+    return this.studentsService.updateContentBlockProgress(
+      studentId,
+      lessonId,
+      blockId,
+      updates,
+    );
   }
 }

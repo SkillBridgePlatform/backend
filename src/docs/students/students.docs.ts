@@ -70,3 +70,28 @@ export const StartStudentCourseDocs = () =>
       description: 'Course started successfully',
     }),
   );
+
+export const StartStudentLessonDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Start a lesson for a student',
+      description: 'Creates a lesson progress record for the student',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Lesson started successfully',
+    }),
+  );
+
+export const UpdateContentBlockProgressDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Update content block progress for a student',
+      description:
+        'Updates the progress (started, completed, or last video position) of a specific content block for a student',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Content block progress updated successfully',
+    }),
+  );

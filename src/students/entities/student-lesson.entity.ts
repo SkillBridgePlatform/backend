@@ -12,6 +12,7 @@ export interface LessonSummary {
   title: string;
   estimated_duration?: number | null;
   isCompleted: boolean;
+  isStarted: boolean;
 }
 
 export interface ModuleWithLessonSummaries {

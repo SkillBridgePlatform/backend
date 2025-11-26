@@ -363,6 +363,30 @@ export class LessonsRepository {
     if (error) throw new InternalServerErrorException(error.message);
   }
 
+  async getLessonsByCourse(courseId: string): Promise<Lesson[]> {
+    const { data: modules, error: moduleError } = await this.supabase.client
+      .from('modules')
+      .select('id')
+      .eq('course_id', courseId);
+
+    if (moduleError)
+      throw new InternalServerErrorException(moduleError.message);
+    if (!modules || modules.length === 0) return [];
+
+    const moduleIds = modules.map((m) => m.id);
+
+    const { data: lessons, error: lessonError } = await this.supabase.client
+      .from('lessons')
+      .select('*')
+      .in('module_id', moduleIds)
+      .order('order', { ascending: true });
+
+    if (lessonError)
+      throw new InternalServerErrorException(lessonError.message);
+
+    return lessons as Lesson[];
+  }
+
   generateSlug(title: string): string {
     return title
       .toLowerCase()

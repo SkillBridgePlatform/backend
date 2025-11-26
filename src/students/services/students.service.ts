@@ -8,6 +8,7 @@ import { ClassStudentsRepository } from 'src/classes/repositories/class-students
 import { CourseModulesRepository } from 'src/courses/repositories/course-modules.repository';
 import { CoursesRepository } from 'src/courses/repositories/courses.repository';
 import { LessonsRepository } from 'src/courses/repositories/lessons.repository';
+import { UpdateContentBlockProgressDto } from '../dto/update-content-block-progress-dto';
 import {
   StudentCourse,
   StudentCourseDetails,
@@ -151,6 +152,7 @@ export class StudentsService {
               title: lesson.title,
               estimated_duration: lesson.estimated_duration ?? null,
               isCompleted: progress?.completed_at != null,
+              isStarted: progress?.started_at != null,
             };
           }),
       }),
@@ -202,5 +204,87 @@ export class StudentsService {
       studentId,
       courseId,
     );
+
+    const lessons = await this.lessonsRepository.getLessonsByCourse(courseId);
+    if (!lessons || lessons.length === 0) return;
+
+    const lessonIds = lessons.map((lesson) => lesson.id);
+
+    await this.studentLessonsRepository.createLessonProgressBulk(
+      studentId,
+      lessonIds,
+    );
+  }
+
+  async startStudentLesson(
+    studentId: string,
+    lessonSlug: string,
+  ): Promise<void> {
+    const lesson = await this.lessonsRepository.getLessonBySlug(lessonSlug);
+    if (!lesson) throw new NotFoundException('Lesson not found');
+
+    const contentBlocks = lesson.contentBlocks || [];
+    const contentBlockIds = contentBlocks.map((cb) => cb.id);
+
+    await Promise.all([
+      this.studentLessonsRepository.updateLessonProgress(studentId, lesson.id, {
+        started_at: new Date().toISOString(),
+      }),
+      contentBlockIds.length > 0
+        ? this.studentLessonsRepository.createContentBlockProgressBulk(
+            studentId,
+            contentBlockIds,
+          )
+        : Promise.resolve(),
+    ]);
+  }
+
+  async getContentBlockProgressByLesson(studentId: string, lessonId: string) {
+    const contentBlockIds =
+      await this.studentLessonsRepository.getContentBlockIdsByLesson(lessonId);
+
+    if (contentBlockIds.length === 0) return [];
+
+    const progress =
+      await this.studentLessonsRepository.getContentBlockProgressByContentBlockIds(
+        studentId,
+        contentBlockIds,
+      );
+
+    return progress;
+  }
+
+  async updateContentBlockProgress(
+    studentId: string,
+    lessonId: string,
+    contentBlockId: string,
+    updates: UpdateContentBlockProgressDto,
+  ) {
+    await this.studentLessonsRepository.updateContentBlockProgress(
+      studentId,
+      contentBlockId,
+      updates,
+    );
+
+    if (!updates.completed_at) return;
+
+    const contentBlockProgress = await this.getContentBlockProgressByLesson(
+      studentId,
+      lessonId,
+    );
+
+    const allCompleted = contentBlockProgress.every(
+      (b) => b.completed_at !== null,
+    );
+
+    if (allCompleted) {
+      await this.studentLessonsRepository.updateLessonProgress(
+        studentId,
+        lessonId,
+        {
+          completed_at: new Date().toISOString(),
+        },
+      );
+    }
   }
 }
