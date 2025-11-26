@@ -4,6 +4,7 @@ import { ClassCoursesRepository } from 'src/classes/repositories/class-courses.r
 import { ClassStudentsRepository } from 'src/classes/repositories/class-students.repository';
 import { CourseModulesRepository } from 'src/courses/repositories/course-modules.repository';
 import { CoursesRepository } from 'src/courses/repositories/courses.repository';
+import { LessonsRepository } from 'src/courses/repositories/lessons.repository';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { AdminStudentsController } from './controllers/admin-students.controller';
@@ -23,6 +24,7 @@ import { StudentsService } from './services/students.service';
     FileUploadService,
     JwtService,
     CoursesRepository,
+    LessonsRepository,
     StudentsRepository,
     ClassStudentsRepository,
     ClassCoursesRepository,

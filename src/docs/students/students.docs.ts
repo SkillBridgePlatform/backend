@@ -48,6 +48,17 @@ export const GetStudentCoursesDocs = () =>
     }),
   );
 
+export const GetStudentLessonsDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Retrieve student lesson details',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Student lesson with content blocks and progress',
+    }),
+  );
+
 export const StartStudentCourseDocs = () =>
   applyDecorators(
     ApiOperation({

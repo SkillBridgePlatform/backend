@@ -4,6 +4,7 @@ import type { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import {
   GetStudentCoursesDocs,
+  GetStudentLessonsDocs,
   GetStudentProfileDocs,
   StartStudentCourseDocs,
 } from 'src/docs/students/students.docs';
@@ -11,6 +12,7 @@ import {
   StudentCourse,
   StudentCourseDetails,
 } from '../entities/student-course.entity';
+import { StudentLessonDetails } from '../entities/student-lesson.entity';
 import { StudentsService } from '../services/students.service';
 
 @ApiTags('Students')
@@ -42,6 +44,15 @@ export class StudentsController {
     @Param('courseSlug') courseSlug: string,
   ): Promise<StudentCourseDetails | null> {
     return this.studentsService.getStudentCourseDetails(studentId, courseSlug);
+  }
+
+  @Get(':studentId/lessons/:lessonSlug')
+  @GetStudentLessonsDocs()
+  async getStudentLessonDetails(
+    @Param('studentId') studentId: string,
+    @Param('lessonSlug') lessonSlug: string,
+  ): Promise<StudentLessonDetails | null> {
+    return this.studentsService.getStudentLessonDetails(studentId, lessonSlug);
   }
 
   @Post(':studentId/courses/:courseId/start')

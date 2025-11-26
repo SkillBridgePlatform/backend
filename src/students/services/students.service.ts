@@ -7,11 +7,15 @@ import { ClassCoursesRepository } from 'src/classes/repositories/class-courses.r
 import { ClassStudentsRepository } from 'src/classes/repositories/class-students.repository';
 import { CourseModulesRepository } from 'src/courses/repositories/course-modules.repository';
 import { CoursesRepository } from 'src/courses/repositories/courses.repository';
+import { LessonsRepository } from 'src/courses/repositories/lessons.repository';
 import {
   StudentCourse,
   StudentCourseDetails,
 } from '../entities/student-course.entity';
-import { ModuleWithLessonSummaries } from '../entities/student-lesson.entity';
+import {
+  ModuleWithLessonSummaries,
+  StudentLessonDetails,
+} from '../entities/student-lesson.entity';
 import { Student } from '../entities/students.entity';
 import { StudentCoursesRepository } from '../repositories/student-courses.repository';
 import { StudentLessonsRepository } from '../repositories/student-lessons.repository';
@@ -20,6 +24,7 @@ import { StudentsRepository } from '../repositories/students.repository';
 @Injectable()
 export class StudentsService {
   constructor(
+    private readonly lessonsRepository: LessonsRepository,
     private readonly coursesRepository: CoursesRepository,
     private readonly studentsRepository: StudentsRepository,
     private readonly classCoursesRepository: ClassCoursesRepository,
@@ -142,6 +147,7 @@ export class StudentsService {
 
             return {
               id: lesson.id,
+              slug: lesson.slug,
               title: lesson.title,
               estimated_duration: lesson.estimated_duration ?? null,
               isCompleted: progress?.completed_at != null,
@@ -160,6 +166,34 @@ export class StudentsService {
     return {
       studentCourse,
       modulesWithLessonSummaries,
+    };
+  }
+
+  async getStudentLessonDetails(
+    studentId: string,
+    lessonSlug: string,
+  ): Promise<StudentLessonDetails | null> {
+    const lesson = await this.lessonsRepository.getLessonBySlug(lessonSlug);
+    if (!lesson) return null;
+
+    const contentBlockIds = (lesson.contentBlocks || []).map((cb) => cb.id);
+
+    const [lessonProgressArray, contentBlockProgress] = await Promise.all([
+      this.studentLessonsRepository.getStudentLessonProgress(studentId, [
+        lesson.id,
+      ]),
+      this.studentLessonsRepository.getStudentContentBlockProgress(
+        studentId,
+        contentBlockIds,
+      ),
+    ]);
+
+    const lessonProgress = lessonProgressArray?.[0] ?? null;
+
+    return {
+      lessonWithBlocks: lesson,
+      lessonProgress,
+      contentBlockProgress: contentBlockProgress || [],
     };
   }
 

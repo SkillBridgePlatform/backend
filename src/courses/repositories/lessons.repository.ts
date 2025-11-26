@@ -329,6 +329,31 @@ export class LessonsRepository {
     return data as LessonWithBlocks;
   }
 
+  async getLessonBySlug(lessonSlug: string): Promise<LessonWithBlocks | null> {
+    const { data, error } = await this.supabase.client
+      .from('lessons')
+      .select(
+        `
+      *,
+      courseModule:module_id(
+        *,
+        course:course_id(*)
+      ),
+      contentBlocks:content_blocks(
+        *,
+        text:text_content_blocks(*),
+        video:video_content_blocks(*)
+      )
+    `,
+      )
+      .eq('slug', lessonSlug)
+      .maybeSingle();
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    return data as LessonWithBlocks;
+  }
+
   async deleteLesson(id: string): Promise<void> {
     const { error } = await this.supabase.client
       .from('lessons')
