@@ -50,4 +50,25 @@ export class StudentCoursesRepository {
 
     return data as CourseProgress;
   }
+
+  async updateCourseProgress(
+    studentId: string,
+    courseId: string,
+    update: Partial<{
+      started_at: string | null;
+      completed_at: string | null;
+      progress_percentage: number | null;
+    }>,
+  ): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('course_progress')
+      .update({
+        ...update,
+        progress_percentage: update.progress_percentage ?? undefined,
+      })
+      .eq('student_id', studentId)
+      .eq('course_id', courseId);
+
+    if (error) throw new InternalServerErrorException(error.message);
+  }
 }

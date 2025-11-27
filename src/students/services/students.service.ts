@@ -180,13 +180,21 @@ export class StudentsService {
 
     const contentBlockIds = (lesson.contentBlocks || []).map((cb) => cb.id);
 
-    const [lessonProgressArray, contentBlockProgress] = await Promise.all([
+    const [
+      lessonProgressArray,
+      contentBlockProgress,
+      { prevLesson, nextLesson },
+    ] = await Promise.all([
       this.studentLessonsRepository.getStudentLessonProgress(studentId, [
         lesson.id,
       ]),
       this.studentLessonsRepository.getStudentContentBlockProgress(
         studentId,
         contentBlockIds,
+      ),
+      this.lessonsRepository.getPrevNextLessons(
+        lesson.courseModule.course.id,
+        lesson.slug,
       ),
     ]);
 
@@ -196,6 +204,8 @@ export class StudentsService {
       lessonWithBlocks: lesson,
       lessonProgress,
       contentBlockProgress: contentBlockProgress || [],
+      prevLesson,
+      nextLesson,
     };
   }
 
@@ -257,6 +267,7 @@ export class StudentsService {
   async updateContentBlockProgress(
     studentId: string,
     lessonId: string,
+    courseId: string,
     contentBlockId: string,
     updates: UpdateContentBlockProgressDto,
   ) {
@@ -278,11 +289,36 @@ export class StudentsService {
     );
 
     if (allCompleted) {
+      const now = new Date().toISOString();
+
       await this.studentLessonsRepository.updateLessonProgress(
         studentId,
         lessonId,
         {
-          completed_at: new Date().toISOString(),
+          completed_at: now,
+        },
+      );
+
+      const lessonProgressRows =
+        await this.studentLessonsRepository.getLessonProgressByCourse(
+          studentId,
+          courseId,
+        );
+
+      const totalLessons = lessonProgressRows.length;
+
+      const completedLessons = lessonProgressRows.filter(
+        (l) => l.completed_at,
+      ).length;
+
+      const progress_percentage =
+        totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
+
+      await this.studentCoursesRepository.updateCourseProgress(
+        studentId,
+        courseId,
+        {
+          progress_percentage,
         },
       );
     }

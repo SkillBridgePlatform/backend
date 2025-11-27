@@ -84,17 +84,21 @@ export class StudentsController {
     return this.studentsService.startStudentLesson(studentId, lessonSlug);
   }
 
-  @Post(':studentId/lessons/:lessonId/blocks/:blockId/progress')
+  @Post(
+    ':studentId/courses/:courseId/lessons/:lessonId/blocks/:blockId/progress',
+  )
   @UpdateContentBlockProgressDocs()
   async updateContentBlockProgress(
     @Param('studentId') studentId: string,
     @Param('lessonId') lessonId: string,
+    @Param('courseId') courseId: string,
     @Param('blockId') blockId: string,
     @Body() updates: UpdateContentBlockProgressDto,
   ): Promise<void> {
     return this.studentsService.updateContentBlockProgress(
       studentId,
       lessonId,
+      courseId,
       blockId,
       updates,
     );

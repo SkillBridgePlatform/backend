@@ -60,7 +60,7 @@ export class StudentLessonsRepository {
         lessonIds.map((lessonId) => ({
           student_id: studentId,
           lesson_id: lessonId,
-          started_at: new Date().toISOString(),
+          started_at: null,
           completed_at: null,
         })),
       );
@@ -143,5 +143,43 @@ export class StudentLessonsRepository {
 
     if (error) throw new InternalServerErrorException(error.message);
     return data;
+  }
+
+  async getLessonProgressByCourse(studentId: string, courseId: string) {
+    // Get all module IDs for this course
+    const { data: modulesInCourse, error: modulesError } =
+      await this.supabase.client
+        .from('modules')
+        .select('id')
+        .eq('course_id', courseId);
+
+    if (modulesError || !modulesInCourse)
+      throw new Error(modulesError?.message || 'No modules found for course');
+
+    const moduleIds = modulesInCourse.map((m) => m.id);
+
+    // Get all lessons for those modules
+    const { data: lessonsInCourse, error: lessonsError } =
+      await this.supabase.client
+        .from('lessons')
+        .select('id')
+        .in('module_id', moduleIds);
+
+    if (lessonsError || !lessonsInCourse)
+      throw new Error(lessonsError?.message || 'No lessons found for course');
+
+    const lessonIds = lessonsInCourse.map((l) => l.id);
+
+    // Get student progress for those lessons
+    const { data: lessonProgress, error: progressError } =
+      await this.supabase.client
+        .from('student_lesson_progress')
+        .select('*')
+        .in('lesson_id', lessonIds)
+        .eq('student_id', studentId);
+
+    if (progressError) throw new Error(progressError?.message);
+
+    return lessonProgress;
   }
 }

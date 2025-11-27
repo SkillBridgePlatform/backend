@@ -24,4 +24,6 @@ export interface StudentLessonDetails {
   lessonWithBlocks: LessonWithBlocks;
   lessonProgress: StudentLessonProgress;
   contentBlockProgress: StudentContentBlockProgress[];
+  nextLesson?: { slug: string; title: string };
+  prevLesson?: { slug: string; title: string };
 }

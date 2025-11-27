@@ -354,6 +354,58 @@ export class LessonsRepository {
     return data as LessonWithBlocks;
   }
 
+  async getPrevNextLessons(courseId: string, currentLessonSlug: string) {
+    const { data: lessons, error } = await this.supabase.client
+      .from('lessons')
+      .select(
+        `
+        slug,
+        title,
+        order,
+        module:module_id (
+          id,
+          order,
+          course_id
+        )
+      `,
+      )
+      .eq('module.course_id', courseId);
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    if (!lessons || lessons.length === 0) {
+      return { prevLesson: undefined, nextLesson: undefined };
+    }
+
+    const sortedLessons = lessons.sort((a, b) => {
+      const moduleOrderA = a.module?.order ?? 0;
+      const moduleOrderB = b.module?.order ?? 0;
+
+      if (moduleOrderA !== moduleOrderB) {
+        return moduleOrderA - moduleOrderB;
+      }
+
+      const lessonOrderA = a.order ?? 0;
+      const lessonOrderB = b.order ?? 0;
+
+      return lessonOrderA - lessonOrderB;
+    });
+
+    const index = sortedLessons.findIndex((l) => l.slug === currentLessonSlug);
+
+    if (index === -1) {
+      return { prevLesson: undefined, nextLesson: undefined };
+    }
+
+    const prevLesson = index > 0 ? sortedLessons[index - 1] : undefined;
+    const nextLesson =
+      index < sortedLessons.length - 1 ? sortedLessons[index + 1] : undefined;
+
+    return { prevLesson, nextLesson };
+  }
+
   async deleteLesson(id: string): Promise<void> {
     const { error } = await this.supabase.client
       .from('lessons')
