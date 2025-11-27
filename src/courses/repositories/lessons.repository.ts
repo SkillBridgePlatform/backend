@@ -86,7 +86,7 @@ export class LessonsRepository {
       .maybeSingle();
 
     if (orderError) throw new InternalServerErrorException(orderError.message);
-    const order = lastLesson?.order != null ? lastLesson.order + 1 : 0;
+    const order = lastLesson?.order != null ? lastLesson.order + 1 : 1;
 
     const { data: lessonData, error: lessonError } = await this.supabase.client
       .from('lessons')
@@ -118,7 +118,7 @@ export class LessonsRepository {
           .insert({
             lesson_id: lessonId,
             type: block.type,
-            order: index,
+            order: index + 1,
           })
           .select()
           .single();
@@ -240,7 +240,7 @@ export class LessonsRepository {
           .insert({
             lesson_id: lessonId,
             type: block.type,
-            order: index,
+            order: index + 1,
           })
           .select()
           .single();
