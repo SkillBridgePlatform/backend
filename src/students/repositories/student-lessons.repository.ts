@@ -60,6 +60,8 @@ export class StudentLessonsRepository {
         lessonIds.map((lessonId) => ({
           student_id: studentId,
           lesson_id: lessonId,
+          started_at: new Date().toISOString(),
+          completed_at: null,
         })),
       );
 
@@ -78,7 +80,7 @@ export class StudentLessonsRepository {
         contentBlockIds.map((id) => ({
           student_id: studentId,
           content_block_id: id,
-          started_at: null,
+          started_at: new Date().toISOString(),
           completed_at: null,
         })),
       );

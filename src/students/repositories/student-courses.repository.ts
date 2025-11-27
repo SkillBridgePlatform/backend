@@ -34,6 +34,8 @@ export class StudentCoursesRepository {
       course_id: courseId,
       status: 'in_progress',
       progress_percentage: 0,
+      started_at: new Date().toISOString(),
+      completed_at: null,
     };
 
     const { data, error } = await this.supabase.client
