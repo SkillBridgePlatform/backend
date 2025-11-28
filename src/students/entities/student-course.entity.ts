@@ -1,8 +1,8 @@
 import { Course } from 'src/courses/entities/course.entity';
 import { Tables } from 'src/supabase/types';
-import { ModuleWithLessonSummaries } from './student-lesson.entity';
+import { LessonSummaryDto } from './student-lesson.entity';
 
-export type CourseProgress = Tables<'course_progress'>;
+export type StudentCourseProgress = Tables<'student_course_progress'>;
 
 export interface StudentCourse {
   course: Course;
@@ -11,7 +11,19 @@ export interface StudentCourse {
   status: 'not_started' | 'in_progress' | 'completed';
 }
 
+export interface ModuleSummaryDto {
+  id: string;
+  slug: string;
+  title: string;
+  estimated_duration?: number | null;
+}
+
+export interface ModuleWithLessonSummariesDto {
+  moduleSummary: ModuleSummaryDto;
+  lessonSummaries: LessonSummaryDto[];
+}
+
 export interface StudentCourseDetails {
   studentCourse: StudentCourse;
-  modulesWithLessonSummaries: ModuleWithLessonSummaries[];
+  modulesWithLessonSummaries: ModuleWithLessonSummariesDto[];
 }

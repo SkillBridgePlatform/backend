@@ -127,7 +127,7 @@ export class ClassStudentsRepository {
 
   // Student
 
-  async getStudentClassIds(studentId: string): Promise<string[]> {
+  async getStudentClassIdsByStudentId(studentId: string): Promise<string[]> {
     const { data, error } = await this.supabase.client
       .from('class_students')
       .select('class_id')

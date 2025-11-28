@@ -5,12 +5,15 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { generateSlug } from 'src/common/utils';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { CreateLessonDto } from '../dto/create-lesson-dto';
 import { UpdateLessonDto } from '../dto/update-lesson-dto';
 import {
   ContentBlock,
+  ContentBlockHierarchy,
   Lesson,
+  LessonHierarchy,
   LessonWithBlocks,
 } from '../entities/lesson.entity';
 
@@ -59,7 +62,7 @@ export class LessonsRepository {
 
     if (!title) throw new BadRequestException('Title is required');
 
-    const baseSlug = this.generateSlug(title);
+    const baseSlug = generateSlug(title);
     let slug = baseSlug;
     let counter = 1;
 
@@ -329,15 +332,17 @@ export class LessonsRepository {
     return data as LessonWithBlocks;
   }
 
-  async getLessonBySlug(lessonSlug: string): Promise<LessonWithBlocks | null> {
+  async getLessonHierarchyBySlug(
+    lessonSlug: string,
+  ): Promise<LessonHierarchy | null> {
     const { data, error } = await this.supabase.client
       .from('lessons')
       .select(
         `
       *,
-      courseModule:module_id(
-        *,
-        course:course_id(*)
+      module:module_id(
+        id,
+        course:course_id(id)
       ),
       contentBlocks:content_blocks(
         *,
@@ -349,9 +354,53 @@ export class LessonsRepository {
       .eq('slug', lessonSlug)
       .maybeSingle();
 
-    if (error) throw new InternalServerErrorException(error.message);
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
 
-    return data as LessonWithBlocks;
+    if (!data) return null;
+
+    const contentBlocks: ContentBlockHierarchy[] = (
+      data.contentBlocks || []
+    ).map((block: any) => ({
+      contentBlock: {
+        id: block.id,
+        lesson_id: block.lesson_id,
+        type: block.type,
+        order: block.order,
+        created_at: block.created_at,
+        updated_at: block.updated_at,
+      },
+      text: block.text
+        ? {
+            content_block_id: block.text.content_block_id,
+            title: block.text.title,
+            content: block.text.content,
+          }
+        : undefined,
+      video: block.video
+        ? {
+            content_block_id: block.video.content_block_id,
+            title: block.video.title,
+            video_url: block.video.video_url,
+          }
+        : undefined,
+    }));
+
+    const {
+      module: _module,
+      contentBlocks: _unusedContentBlocks,
+      ...lessonFields
+    } = data;
+
+    const lessonHierarchy: LessonHierarchy = {
+      lesson: lessonFields,
+      contentBlocks,
+      courseId: data.module?.course?.id,
+      courseModuleId: data.module?.id,
+    };
+
+    return lessonHierarchy;
   }
 
   async getPrevNextLessons(courseId: string, currentLessonSlug: string) {
@@ -437,14 +486,5 @@ export class LessonsRepository {
       throw new InternalServerErrorException(lessonError.message);
 
     return lessons as Lesson[];
-  }
-
-  generateSlug(title: string): string {
-    return title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
   }
 }

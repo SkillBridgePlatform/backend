@@ -1,12 +1,11 @@
-import { LessonWithBlocks } from 'src/courses/entities/lesson.entity';
-import { CourseModule } from 'src/courses/entities/module.entity';
+import { LessonHierarchy } from 'src/courses/entities/lesson.entity';
 import { Tables } from 'src/supabase/types';
 
 export type StudentLessonProgress = Tables<'student_lesson_progress'>;
 export type StudentContentBlockProgress =
   Tables<'student_content_block_progress'>;
 
-export interface LessonSummary {
+export interface LessonSummaryDto {
   id: string;
   slug: string;
   title: string;
@@ -15,13 +14,8 @@ export interface LessonSummary {
   isStarted: boolean;
 }
 
-export interface ModuleWithLessonSummaries {
-  module: CourseModule;
-  lessonSummaries: LessonSummary[];
-}
-
 export interface StudentLessonDetails {
-  lessonWithBlocks: LessonWithBlocks;
+  lessonHierarchy: LessonHierarchy;
   lessonProgress: StudentLessonProgress;
   contentBlockProgress: StudentContentBlockProgress[];
   nextLesson?: { slug: string; title: string };
