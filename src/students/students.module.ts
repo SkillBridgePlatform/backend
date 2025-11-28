@@ -8,21 +8,30 @@ import { LessonsRepository } from 'src/courses/repositories/lessons.repository';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { AdminStudentsController } from './controllers/admin-students.controller';
+import { StudentCoursesController } from './controllers/student-courses.controller';
 import { StudentsController } from './controllers/students.controller';
 import { StudentCoursesRepository } from './repositories/student-courses.repository';
 import { StudentLessonsRepository } from './repositories/student-lessons.repository';
 import { StudentsRepository } from './repositories/students.repository';
 import { AdminStudentsService } from './services/admin-students.service';
+import { StudentCoursesService } from './services/student-courses.service';
 import { StudentsService } from './services/students.service';
 
 @Module({
   imports: [SupabaseModule],
-  controllers: [AdminStudentsController, StudentsController],
+  controllers: [
+    AdminStudentsController,
+    StudentsController,
+    StudentCoursesController,
+  ],
   providers: [
     StudentsService,
+    StudentCoursesService,
     AdminStudentsService,
+
     FileUploadService,
     JwtService,
+
     CoursesRepository,
     LessonsRepository,
     StudentsRepository,
