@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ClassCoursesRepository } from 'src/classes/repositories/class-courses.repository';
-import { ClassStudentsRepository } from 'src/classes/repositories/class-students.repository';
 import { CourseModulesRepository } from 'src/courses/repositories/course-modules.repository';
 import { CoursesRepository } from 'src/courses/repositories/courses.repository';
 import { LessonsRepository } from 'src/courses/repositories/lessons.repository';
@@ -13,6 +11,7 @@ import { StudentProgressController } from './controllers/student-progress.contro
 import { StudentsController } from './controllers/students.controller';
 import { StudentContentBlockProgressRepository } from './repositories/student-content-block-progress.repository';
 import { StudentCourseProgressRepository } from './repositories/student-course-progress.repository';
+import { StudentCoursesRepository } from './repositories/student-courses.repository';
 import { StudentLessonProgressRepository } from './repositories/student-lesson-progress.repository';
 import { StudentsRepository } from './repositories/students.repository';
 import { AdminStudentsService } from './services/admin-students.service';
@@ -40,8 +39,7 @@ import { StudentsService } from './services/students.service';
     CoursesRepository,
     LessonsRepository,
     StudentsRepository,
-    ClassStudentsRepository,
-    ClassCoursesRepository,
+    StudentCoursesRepository,
     CourseModulesRepository,
     StudentLessonProgressRepository,
     StudentCourseProgressRepository,

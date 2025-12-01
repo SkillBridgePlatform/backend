@@ -17,19 +17,9 @@ export class StudentProgressService {
   // Course Progress
 
   async startStudentCourse(studentId: string, courseId: string): Promise<void> {
-    await this.studentCourseProgressRepository.createStudentCourseProgress(
+    await this.studentCourseProgressRepository.startStudentCourse(
       studentId,
       courseId,
-    );
-
-    const lessons = await this.lessonsRepository.getLessonsByCourse(courseId);
-    if (!lessons || lessons.length === 0) return;
-
-    const lessonIds = lessons.map((lesson) => lesson.id);
-
-    await this.studentLessonProgressRepository.createLessonProgressBulk(
-      studentId,
-      lessonIds,
     );
   }
 

@@ -448,7 +448,6 @@ export type Database = {
           id: string;
           progress_percentage: number;
           started_at: string | null;
-          status: string;
           student_id: string;
           updated_at: string;
         };
@@ -459,7 +458,6 @@ export type Database = {
           id?: string;
           progress_percentage?: number;
           started_at?: string | null;
-          status?: string;
           student_id: string;
           updated_at?: string;
         };
@@ -470,7 +468,6 @@ export type Database = {
           id?: string;
           progress_percentage?: number;
           started_at?: string | null;
-          status?: string;
           student_id?: string;
           updated_at?: string;
         };
@@ -701,6 +698,16 @@ export type Database = {
           p_module_id: string;
           p_title: string;
         };
+        Returns: undefined;
+      };
+      get_student_course_ids: {
+        Args: { student_uuid: string };
+        Returns: {
+          course_id: string;
+        }[];
+      };
+      start_student_course: {
+        Args: { p_course_id: string; p_student_id: string };
         Returns: undefined;
       };
     };

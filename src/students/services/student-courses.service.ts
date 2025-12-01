@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ClassCoursesRepository } from 'src/classes/repositories/class-courses.repository';
-import { ClassStudentsRepository } from 'src/classes/repositories/class-students.repository';
 import { CourseModulesRepository } from 'src/courses/repositories/course-modules.repository';
 import { CoursesRepository } from 'src/courses/repositories/courses.repository';
 import { LessonsRepository } from 'src/courses/repositories/lessons.repository';
@@ -13,29 +11,23 @@ import { StudentLessonDetails } from '../entities/student-lesson.entity';
 import { StudentContentBlockProgressRepository } from '../repositories/student-content-block-progress.repository';
 import { StudentCourseProgressRepository } from '../repositories/student-course-progress.repository';
 import { StudentLessonProgressRepository } from '../repositories/student-lesson-progress.repository';
+import { StudentCoursesRepository } from './../repositories/student-courses.repository';
 
 @Injectable()
 export class StudentCoursesService {
   constructor(
     private readonly lessonsRepository: LessonsRepository,
     private readonly coursesRepository: CoursesRepository,
-    private readonly classCoursesRepository: ClassCoursesRepository,
-    private readonly classStudentsRepository: ClassStudentsRepository,
     private readonly courseModulesRepository: CourseModulesRepository,
+    private readonly studentCoursesRepository: StudentCoursesRepository,
     private readonly studentLessonProgressRepository: StudentLessonProgressRepository,
     private readonly studentCourseProgressRepository: StudentCourseProgressRepository,
     private readonly studentContentBlockProgressRepository: StudentContentBlockProgressRepository,
   ) {}
 
   async getStudentCourses(studentId: string): Promise<StudentCourse[]> {
-    const classIds =
-      await this.classStudentsRepository.getStudentClassIdsByStudentId(
-        studentId,
-      );
-    if (!classIds.length) return [];
-
     const courseIds =
-      await this.classCoursesRepository.getCourseIdsByClassIds(classIds);
+      await this.studentCoursesRepository.getStudentCourseIds(studentId);
     if (!courseIds.length) return [];
 
     const [courses, studentCourseProgressRecords, moduleCounts] =
@@ -48,18 +40,23 @@ export class StudentCoursesService {
         this.courseModulesRepository.getModuleCountsByCourseIds(courseIds),
       ]);
 
+    const progressMap = new Map(
+      studentCourseProgressRecords.map((p) => [p.course_id, p]),
+    );
+    const moduleCountMap = new Map(Object.entries(moduleCounts));
+
     const studentCourses: StudentCourse[] = courses.map((course) => {
-      const moduleCount = moduleCounts[course.id] ?? 0;
-      const progress = studentCourseProgressRecords.find(
-        (p) => p.course_id === course.id,
-      );
+      const moduleCount = moduleCountMap.get(course.id) ?? 0;
+      const progress = progressMap.get(course.id);
       const progressPercentage = progress?.progress_percentage ?? 0;
 
       const status: StudentCourse['status'] = !progress
         ? 'not_started'
-        : progressPercentage >= 100
+        : progress.completed_at
           ? 'completed'
-          : 'in_progress';
+          : progress.started_at
+            ? 'in_progress'
+            : 'not_started';
 
       return {
         course,
@@ -82,12 +79,8 @@ export class StudentCoursesService {
 
     const { course, modulesWithLessons } = courseHierarchy;
 
-    const sortedModules = (modulesWithLessons || []).sort(
-      (a, b) => a.module.order - b.module.order,
-    );
-
-    const lessonIds = sortedModules.flatMap((m) =>
-      (m.lessons || []).map((lesson) => lesson.id),
+    const lessonIds = modulesWithLessons.flatMap((m) =>
+      (m.lessons || []).map((l) => l.id),
     );
 
     const [courseProgressList, lessonProgressRecords] = await Promise.all([
@@ -105,34 +98,35 @@ export class StudentCoursesService {
 
     const status: StudentCourse['status'] = !courseProgress
       ? 'not_started'
-      : progressPercentage >= 100
+      : courseProgress.completed_at != null
         ? 'completed'
-        : 'in_progress';
+        : courseProgress.started_at != null
+          ? 'in_progress'
+          : 'not_started';
+
+    const lessonProgressMap = new Map(
+      lessonProgressRecords.map((lp) => [lp.lesson_id, lp]),
+    );
 
     const modulesWithLessonSummaries: ModuleWithLessonSummariesDto[] =
-      sortedModules.map((m) => ({
+      modulesWithLessons.map((m) => ({
         moduleSummary: {
           id: m.module.id,
           slug: m.module.slug,
           title: m.module.title,
           estimated_duration: m.module.estimated_duration ?? null,
         },
-        lessonSummaries: (m.lessons || [])
-          .sort((a, b) => a.order - b.order)
-          .map((lesson) => {
-            const progress = lessonProgressRecords.find(
-              (lp) => lp.lesson_id === lesson.id,
-            );
-
-            return {
-              id: lesson.id,
-              slug: lesson.slug,
-              title: lesson.title,
-              estimated_duration: lesson.estimated_duration ?? null,
-              isCompleted: progress?.completed_at != null,
-              isStarted: progress?.started_at != null,
-            };
-          }),
+        lessonSummaries: (m.lessons || []).map((lesson) => {
+          const progress = lessonProgressMap.get(lesson.id);
+          return {
+            id: lesson.id,
+            slug: lesson.slug,
+            title: lesson.title,
+            estimated_duration: lesson.estimated_duration ?? null,
+            isCompleted: progress?.completed_at != null,
+            isStarted: progress?.started_at != null,
+          };
+        }),
       }));
 
     const studentCourse: StudentCourse = {

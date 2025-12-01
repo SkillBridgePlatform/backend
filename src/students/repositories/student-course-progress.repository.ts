@@ -25,30 +25,17 @@ export class StudentCourseProgressRepository {
     return data as StudentCourseProgress[];
   }
 
-  async createStudentCourseProgress(
-    studentId: string,
-    courseId: string,
-  ): Promise<StudentCourseProgress> {
-    const payload = {
-      student_id: studentId,
-      course_id: courseId,
-      status: 'in_progress',
-      progress_percentage: 0,
-      started_at: new Date().toISOString(),
-      completed_at: null,
-    };
-
-    const { data, error } = await this.supabase.client
-      .from('student_course_progress')
-      .insert(payload)
-      .select()
-      .single();
+  async startStudentCourse(studentId: string, courseId: string): Promise<void> {
+    const { error } = await this.supabase.client.rpc('start_student_course', {
+      p_student_id: studentId,
+      p_course_id: courseId,
+    });
 
     if (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(
+        `Failed to start course: ${error.message}`,
+      );
     }
-
-    return data as StudentCourseProgress;
   }
 
   async updateCourseProgress(
