@@ -26,26 +26,6 @@ export class StudentContentBlockProgressRepository {
     return data as StudentContentBlockProgress[];
   }
 
-  async createContentBlockProgressBulk(
-    studentId: string,
-    contentBlockIds: string[],
-  ): Promise<void> {
-    if (!contentBlockIds || contentBlockIds.length === 0) return;
-
-    const { error } = await this.supabase.client
-      .from('student_content_block_progress')
-      .insert(
-        contentBlockIds.map((id) => ({
-          student_id: studentId,
-          content_block_id: id,
-          started_at: new Date().toISOString(),
-          completed_at: null,
-        })),
-      );
-
-    if (error) throw new InternalServerErrorException(error.message);
-  }
-
   async updateContentBlockProgress(
     studentId: string,
     contentBlockId: string,
