@@ -45,7 +45,6 @@ export class StudentCourseProgressRepository {
       started_at: string | null;
       completed_at: string | null;
       progress_percentage: number | null;
-      status: string | null;
     }>,
   ): Promise<void> {
     const { error } = await this.supabase.client
@@ -53,7 +52,6 @@ export class StudentCourseProgressRepository {
       .update({
         ...update,
         progress_percentage: update.progress_percentage ?? undefined,
-        status: update.status ?? undefined,
       })
       .eq('student_id', studentId)
       .eq('course_id', courseId);

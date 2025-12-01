@@ -107,7 +107,6 @@ export class StudentProgressService {
         {
           progress_percentage,
           completed_at: progress_percentage == 100.0 ? now : null,
-          status: progress_percentage == 100.0 ? 'completed' : 'in_progress',
         },
       );
     }
