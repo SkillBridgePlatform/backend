@@ -65,57 +65,14 @@ export class StudentProgressService {
     contentBlockId: string,
     updates: UpdateContentBlockProgressDto,
   ) {
-    await this.studentContentBlockProgressRepository.updateContentBlockProgress(
-      studentId,
-      contentBlockId,
-      updates,
-    );
+    const completedAt = updates.completed_at ?? undefined;
 
-    if (!updates.completed_at) return;
-
-    const contentBlockProgress = await this.getContentBlockProgressByLesson(
+    await this.studentLessonProgressRepository.updateContentBlockProgress(
       studentId,
+      courseId,
       lessonId,
+      contentBlockId,
+      completedAt,
     );
-
-    const allCompleted = contentBlockProgress.every(
-      (b) => b.completed_at !== null,
-    );
-
-    if (allCompleted) {
-      const now = new Date().toISOString();
-
-      await this.studentLessonProgressRepository.updateLessonProgress(
-        studentId,
-        lessonId,
-        {
-          completed_at: now,
-        },
-      );
-
-      const lessonProgressRows =
-        await this.studentLessonProgressRepository.getLessonProgressByCourse(
-          studentId,
-          courseId,
-        );
-
-      const totalLessons = lessonProgressRows.length;
-
-      const completedLessons = lessonProgressRows.filter(
-        (l) => l.completed_at,
-      ).length;
-
-      const progress_percentage =
-        totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
-
-      await this.studentCourseProgressRepository.updateCourseProgress(
-        studentId,
-        courseId,
-        {
-          progress_percentage,
-          completed_at: progress_percentage == 100.0 ? now : null,
-        },
-      );
-    }
   }
 }

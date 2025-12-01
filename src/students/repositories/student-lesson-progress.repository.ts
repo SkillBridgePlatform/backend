@@ -56,6 +56,24 @@ export class StudentLessonProgressRepository {
     if (error) throw new InternalServerErrorException(error.message);
   }
 
+  async updateContentBlockProgress(
+    studentId: string,
+    courseId: string,
+    lessonId: string,
+    blockId: string,
+    completedAt: string | undefined,
+  ) {
+    const { error } = await this.supabase.client.rpc('update_full_progress', {
+      _student_id: studentId,
+      _course_id: courseId,
+      _lesson_id: lessonId,
+      _content_block_id: blockId,
+      _completed_at: completedAt,
+    });
+
+    if (error) throw error;
+  }
+
   async getLessonProgressByCourse(studentId: string, courseId: string) {
     // Get all module IDs for this course
     const { data: modulesInCourse, error: modulesError } =
