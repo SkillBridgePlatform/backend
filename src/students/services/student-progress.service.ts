@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { LessonsRepository } from 'src/courses/repositories/lessons.repository';
 import { UpdateContentBlockProgressDto } from '../dto/update-content-block-progress-dto';
 import { StudentContentBlockProgressRepository } from '../repositories/student-content-block-progress.repository';
 import { StudentCourseProgressRepository } from '../repositories/student-course-progress.repository';
@@ -8,7 +7,6 @@ import { StudentLessonProgressRepository } from '../repositories/student-lesson-
 @Injectable()
 export class StudentProgressService {
   constructor(
-    private readonly lessonsRepository: LessonsRepository,
     private readonly studentLessonProgressRepository: StudentLessonProgressRepository,
     private readonly studentCourseProgressRepository: StudentCourseProgressRepository,
     private readonly studentContentBlockProgressRepository: StudentContentBlockProgressRepository,
@@ -25,11 +23,20 @@ export class StudentProgressService {
 
   // Lesson Progress
 
-  async startStudentLesson(studentId: string, lessonId: string): Promise<void> {
-    await this.studentLessonProgressRepository.startStudentLesson(
-      studentId,
-      lessonId,
-    );
+  async startStudentLesson(studentId: string, lessonId: string) {
+    const contentBlockIds: string[] =
+      await this.studentLessonProgressRepository.startStudentLesson(
+        studentId,
+        lessonId,
+      );
+
+    const contentBlockProgress =
+      await this.studentContentBlockProgressRepository.getContentBlockProgressByContentBlockIds(
+        studentId,
+        contentBlockIds,
+      );
+
+    return contentBlockProgress;
   }
 
   // Content Block Progress

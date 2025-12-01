@@ -712,7 +712,7 @@ export type Database = {
       };
       start_student_lesson: {
         Args: { p_lesson_id: string; p_student_id: string };
-        Returns: undefined;
+        Returns: string[];
       };
     };
     Enums: {

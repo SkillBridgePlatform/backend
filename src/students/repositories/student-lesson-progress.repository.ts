@@ -25,17 +25,18 @@ export class StudentLessonProgressRepository {
     return data as StudentLessonProgress[];
   }
 
-  async startStudentLesson(studentId: string, lessonId: string): Promise<void> {
-    const { error } = await this.supabase.client.rpc('start_student_lesson', {
-      p_student_id: studentId,
-      p_lesson_id: lessonId,
-    });
+  async startStudentLesson(studentId: string, lessonId: string) {
+    const { data, error } = await this.supabase.client.rpc(
+      'start_student_lesson',
+      {
+        p_student_id: studentId,
+        p_lesson_id: lessonId,
+      },
+    );
 
-    if (error) {
-      throw new InternalServerErrorException(
-        `Failed to start lesson: ${error.message}`,
-      );
-    }
+    if (error) throw new InternalServerErrorException(error.message);
+
+    return data;
   }
 
   async updateLessonProgress(

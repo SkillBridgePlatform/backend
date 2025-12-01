@@ -7,6 +7,7 @@ import {
   UpdateContentBlockProgressDocs,
 } from 'src/docs/students/students.docs';
 import { UpdateContentBlockProgressDto } from '../dto/update-content-block-progress-dto';
+import { StudentContentBlockProgress } from '../entities/student-lesson.entity';
 import { StudentProgressService } from '../services/student-progress.service';
 
 @ApiTags('Student Progress')
@@ -32,7 +33,7 @@ export class StudentProgressController {
   async startStudentLesson(
     @Param('studentId') studentId: string,
     @Param('lessonId') lessonId: string,
-  ): Promise<void> {
+  ): Promise<StudentContentBlockProgress[]> {
     return this.studentProgressService.startStudentLesson(studentId, lessonId);
   }
 
