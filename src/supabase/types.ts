@@ -710,6 +710,10 @@ export type Database = {
         Args: { p_course_id: string; p_student_id: string };
         Returns: undefined;
       };
+      start_student_lesson: {
+        Args: { p_lesson_id: string; p_student_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       gender: 'Male' | 'Female';

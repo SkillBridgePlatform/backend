@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LessonsRepository } from 'src/courses/repositories/lessons.repository';
 import { UpdateContentBlockProgressDto } from '../dto/update-content-block-progress-dto';
 import { StudentContentBlockProgressRepository } from '../repositories/student-content-block-progress.repository';
@@ -25,30 +25,11 @@ export class StudentProgressService {
 
   // Lesson Progress
 
-  async startStudentLesson(
-    studentId: string,
-    lessonSlug: string,
-  ): Promise<void> {
-    const lessonHierarchy =
-      await this.lessonsRepository.getLessonHierarchyBySlug(lessonSlug);
-    if (!lessonHierarchy) throw new NotFoundException('Lesson not found');
-    const contentBlocks = lessonHierarchy.contentBlocks || [];
-    const contentBlockIds = contentBlocks.map((cb) => cb.contentBlock.id);
-    await Promise.all([
-      this.studentLessonProgressRepository.updateLessonProgress(
-        studentId,
-        lessonHierarchy.lesson.id,
-        {
-          started_at: new Date().toISOString(),
-        },
-      ),
-      contentBlockIds.length > 0
-        ? this.studentContentBlockProgressRepository.createContentBlockProgressBulk(
-            studentId,
-            contentBlockIds,
-          )
-        : Promise.resolve(),
-    ]);
+  async startStudentLesson(studentId: string, lessonId: string): Promise<void> {
+    await this.studentLessonProgressRepository.startStudentLesson(
+      studentId,
+      lessonId,
+    );
   }
 
   // Content Block Progress

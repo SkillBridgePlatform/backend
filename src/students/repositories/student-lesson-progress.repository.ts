@@ -25,24 +25,17 @@ export class StudentLessonProgressRepository {
     return data as StudentLessonProgress[];
   }
 
-  async createLessonProgressBulk(
-    studentId: string,
-    lessonIds: string[],
-  ): Promise<void> {
-    if (!lessonIds || lessonIds.length === 0) return;
+  async startStudentLesson(studentId: string, lessonId: string): Promise<void> {
+    const { error } = await this.supabase.client.rpc('start_student_lesson', {
+      p_student_id: studentId,
+      p_lesson_id: lessonId,
+    });
 
-    const { error } = await this.supabase.client
-      .from('student_lesson_progress')
-      .insert(
-        lessonIds.map((lessonId) => ({
-          student_id: studentId,
-          lesson_id: lessonId,
-          started_at: null,
-          completed_at: null,
-        })),
+    if (error) {
+      throw new InternalServerErrorException(
+        `Failed to start lesson: ${error.message}`,
       );
-
-    if (error) throw new InternalServerErrorException(error.message);
+    }
   }
 
   async updateLessonProgress(

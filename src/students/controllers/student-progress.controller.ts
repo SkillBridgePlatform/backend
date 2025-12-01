@@ -27,16 +27,13 @@ export class StudentProgressController {
     return this.studentProgressService.startStudentCourse(studentId, courseId);
   }
 
-  @Post('/lessons/:lessonSlug/start')
+  @Post('/lessons/:lessonId/start')
   @StartStudentLessonDocs()
   async startStudentLesson(
     @Param('studentId') studentId: string,
-    @Param('lessonSlug') lessonSlug: string,
+    @Param('lessonId') lessonId: string,
   ): Promise<void> {
-    return this.studentProgressService.startStudentLesson(
-      studentId,
-      lessonSlug,
-    );
+    return this.studentProgressService.startStudentLesson(studentId, lessonId);
   }
 
   @Post('/courses/:courseId/lessons/:lessonId/blocks/:blockId')
