@@ -1,5 +1,6 @@
-import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import type { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import {
   StartStudentCourseDocs,
@@ -13,7 +14,7 @@ import { StudentProgressService } from '../services/student-progress.service';
 @ApiTags('Student Progress')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
-@Controller('students/:studentId/progress/')
+@Controller('student/progress')
 export class StudentProgressController {
   constructor(
     private readonly studentProgressService: StudentProgressService,
@@ -22,30 +23,33 @@ export class StudentProgressController {
   @Post('/courses/:courseId/start')
   @StartStudentCourseDocs()
   async startStudentCourse(
+    @Req() req: Request,
     @Param('courseId') courseId: string,
-    @Param('studentId') studentId: string,
   ): Promise<void> {
+    const studentId = req.user!.id;
     return this.studentProgressService.startStudentCourse(studentId, courseId);
   }
 
   @Post('/lessons/:lessonId/start')
   @StartStudentLessonDocs()
   async startStudentLesson(
-    @Param('studentId') studentId: string,
+    @Req() req: Request,
     @Param('lessonId') lessonId: string,
   ): Promise<StudentContentBlockProgress[]> {
+    const studentId = req.user!.id;
     return this.studentProgressService.startStudentLesson(studentId, lessonId);
   }
 
   @Post('/courses/:courseId/lessons/:lessonId/blocks/:blockId')
   @UpdateContentBlockProgressDocs()
   async updateContentBlockProgress(
-    @Param('studentId') studentId: string,
+    @Req() req: Request,
     @Param('lessonId') lessonId: string,
     @Param('courseId') courseId: string,
     @Param('blockId') blockId: string,
     @Body() updates: UpdateContentBlockProgressDto,
   ): Promise<void> {
+    const studentId = req.user!.id;
     return this.studentProgressService.updateContentBlockProgress(
       studentId,
       lessonId,

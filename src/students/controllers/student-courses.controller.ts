@@ -1,5 +1,6 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import type { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import {
   GetStudentCoursesDocs,
@@ -16,7 +17,7 @@ import { StudentProgressService } from '../services/student-progress.service';
 @ApiTags('Student Courses')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
-@Controller('students/:studentId')
+@Controller('student')
 export class StudentCoursesController {
   constructor(
     private readonly studentCoursesService: StudentCoursesService,
@@ -25,18 +26,18 @@ export class StudentCoursesController {
 
   @Get('/courses')
   @GetStudentCoursesDocs()
-  async getStudentCourses(
-    @Param('studentId') studentId: string,
-  ): Promise<StudentCourse[]> {
+  async getStudentCourses(@Req() req: Request): Promise<StudentCourse[]> {
+    const studentId = req.user!.id;
     return this.studentCoursesService.getStudentCourses(studentId);
   }
 
   @Get('/courses/:courseSlug')
   @GetStudentCoursesDocs()
   async getStudentCourseDetails(
-    @Param('studentId') studentId: string,
+    @Req() req: Request,
     @Param('courseSlug') courseSlug: string,
   ): Promise<StudentCourseDetails | null> {
+    const studentId = req.user!.id;
     return this.studentCoursesService.getStudentCourseDetails(
       studentId,
       courseSlug,
@@ -46,9 +47,10 @@ export class StudentCoursesController {
   @Get('/lessons/:lessonSlug')
   @GetStudentLessonsDocs()
   async getStudentLessonDetails(
-    @Param('studentId') studentId: string,
+    @Req() req: Request,
     @Param('lessonSlug') lessonSlug: string,
   ): Promise<StudentLessonDetails | null> {
+    const studentId = req.user!.id;
     return this.studentCoursesService.getStudentLessonDetails(
       studentId,
       lessonSlug,
