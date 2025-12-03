@@ -36,3 +36,62 @@ export const GetStudentProfileDocs = () =>
       description: 'Returns the authenticated student profile.',
     }),
   );
+
+export const GetStudentCoursesDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Retrieve student courses',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'List of courses',
+    }),
+  );
+
+export const GetStudentLessonsDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Retrieve student lesson details',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Student lesson with content blocks and progress',
+    }),
+  );
+
+export const StartStudentCourseDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Start a course for a student',
+      description: 'Creates a course progress record for the student',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Course started successfully',
+    }),
+  );
+
+export const StartStudentLessonDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Start a lesson for a student',
+      description: 'Creates a lesson progress record for the student',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Lesson started successfully',
+    }),
+  );
+
+export const UpdateContentBlockProgressDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Update content block progress for a student',
+      description:
+        'Updates the progress (started, completed, or last video position) of a specific content block for a student',
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'Content block progress updated successfully',
+    }),
+  );

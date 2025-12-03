@@ -22,7 +22,7 @@ import {
   GetAvailableSchoolsForCourseAssignmentDocs,
   GetCourseByIdDocs,
   GetCoursesDocs,
-  GetCourseWithModulesAndLessonsDocs,
+  getCourseWithModulesAndLessonsByIdDocs,
   GetSchoolsAssignedToCourseDocs,
   UnassignSchoolsFromCourseDocs,
   UpdateCourseDocs,
@@ -42,11 +42,11 @@ export class AdminCoursesController {
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
   @Get(':id/full')
-  @GetCourseWithModulesAndLessonsDocs()
-  async GetCourseWithModulesAndLessons(
+  @getCourseWithModulesAndLessonsByIdDocs()
+  async getCourseWithModulesAndLessonsById(
     @Param('id') id: string,
   ): Promise<CourseWithModulesAndLessons | null> {
-    return this.coursesService.getCourseWithModulesAndLessons(id);
+    return this.coursesService.getCourseWithModulesAndLessonsById(id);
   }
 
   @Roles(UserRole.SuperAdmin)

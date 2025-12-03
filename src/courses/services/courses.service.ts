@@ -50,11 +50,11 @@ export class CoursesService {
     return this.coursesRepository.deleteCourse(id);
   }
 
-  async getCourseWithModulesAndLessons(
+  async getCourseWithModulesAndLessonsById(
     courseId: string,
   ): Promise<CourseWithModulesAndLessons | null> {
     const course =
-      await this.coursesRepository.getCourseWithModulesAndLessons(courseId);
+      await this.coursesRepository.getCourseWithModulesAndLessonsById(courseId);
     if (!course) {
       throw new NotFoundException('Course not found');
     }

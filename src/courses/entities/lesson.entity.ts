@@ -16,3 +16,17 @@ export type LessonWithBlocks = Lesson & {
     video: VideoContentBlock | null;
   })[];
 };
+
+export interface LessonHierarchy {
+  lesson: Lesson;
+  contentBlocks: ContentBlockHierarchy[];
+  courseId: string;
+  courseTitle: string;
+  courseModuleId: string;
+}
+
+export interface ContentBlockHierarchy {
+  contentBlock: ContentBlock;
+  text?: TextContentBlock;
+  video?: VideoContentBlock;
+}

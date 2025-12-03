@@ -2,9 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ClassesRepository } from 'src/classes/repositories/classes.repository';
 import { UserRole } from 'src/common/enums';
 import { SchoolsRepository } from 'src/schools/schools.repository';
-import { StudentsRepository } from 'src/students/students.repository';
+import { StudentsRepository } from 'src/students/repositories/students.repository';
+import { StudentCoursesService } from 'src/students/services/student-courses.service';
 import { UsersRepository } from 'src/users/users.repository';
 import { SchoolDashboard } from './entities/school-dashboard.entity';
+import { StudentDashboard } from './entities/student-dashboard.entity';
 import { SuperAdminDashboard } from './entities/super-admin-dashboard.entity';
 
 @Injectable()
@@ -14,6 +16,7 @@ export class DashboardsService {
     private readonly schoolsRepository: SchoolsRepository,
     private readonly studentsRepository: StudentsRepository,
     private readonly classesRepository: ClassesRepository,
+    private readonly studentCoursesService: StudentCoursesService,
   ) {}
 
   async getSuperAdminDashboard(): Promise<SuperAdminDashboard> {
@@ -61,6 +64,30 @@ export class DashboardsService {
       totalTeachers,
       totalStudents,
       totalClasses,
+    };
+  }
+
+  async getStudentDashboard(studentId: string): Promise<StudentDashboard> {
+    const allCourses =
+      await this.studentCoursesService.getStudentCourses(studentId);
+
+    const totalAvailableCourses = allCourses.length;
+
+    const currentCourses = allCourses.filter(
+      (course) => course.status === 'in_progress',
+    );
+
+    const coursesCompleted = allCourses.filter(
+      (course) => course.status === 'completed',
+    ).length;
+
+    const coursesInProgress = currentCourses.length;
+
+    return {
+      currentCourses,
+      coursesCompleted,
+      coursesInProgress,
+      totalAvailableCourses,
     };
   }
 }

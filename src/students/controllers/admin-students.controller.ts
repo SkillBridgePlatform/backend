@@ -28,11 +28,11 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { SortDirection, UserRole } from 'src/common/enums';
 import { SortOptions } from 'src/common/interfaces';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
-import { CreateStudentDto } from './dto/create-student-dto';
-import { ResetPinDto } from './dto/reset-pin-dto';
-import { UpdateStudentDto } from './dto/update-student-dto';
-import { Student } from './entities/students.entity';
-import { StudentsService } from './students.service';
+import { CreateStudentDto } from '../dto/create-student-dto';
+import { ResetPinDto } from '../dto/reset-pin-dto';
+import { UpdateStudentDto } from '../dto/update-student-dto';
+import { Student } from '../entities/students.entity';
+import { AdminStudentsService } from '../services/admin-students.service';
 
 @ApiTags('Admin - Students')
 @ApiBearerAuth('access-token')
@@ -40,7 +40,7 @@ import { StudentsService } from './students.service';
 @Controller('/admin/students')
 export class AdminStudentsController {
   constructor(
-    private readonly studentsService: StudentsService,
+    private readonly adminStudentsService: AdminStudentsService,
     private readonly fileUploadService: FileUploadService,
   ) {}
 
@@ -92,7 +92,12 @@ export class AdminStudentsController {
       offset: offset ? parseInt(offset, 10) : undefined,
     };
     const sort: SortOptions = { sortBy, sortDirection };
-    return this.studentsService.getStudents(filters, pagination, sort, search);
+    return this.adminStudentsService.getStudents(
+      filters,
+      pagination,
+      sort,
+      search,
+    );
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
@@ -101,7 +106,7 @@ export class AdminStudentsController {
   @ApiResponse({ status: 200, description: 'Student found' })
   @ApiResponse({ status: 404, description: 'Student not found' })
   async getStudentById(@Param('id') id: string): Promise<Student> {
-    return this.studentsService.getStudentById(id);
+    return this.adminStudentsService.getStudentById(id);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
@@ -113,7 +118,7 @@ export class AdminStudentsController {
     @Req() req: Request,
     @Body() dto: CreateStudentDto,
   ): Promise<Student> {
-    return this.studentsService.createStudent(dto);
+    return this.adminStudentsService.createStudent(dto);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
@@ -125,7 +130,7 @@ export class AdminStudentsController {
     @Param('id') id: string,
     @Body() dto: UpdateStudentDto,
   ): Promise<Student> {
-    return this.studentsService.updateStudent(id, dto);
+    return this.adminStudentsService.updateStudent(id, dto);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin, UserRole.Teacher)
@@ -137,7 +142,7 @@ export class AdminStudentsController {
     @Param('id') id: string,
     @Body() dto: ResetPinDto,
   ): Promise<void> {
-    return await this.studentsService.resetPin(id, dto.pin);
+    return await this.adminStudentsService.resetPin(id, dto.pin);
   }
 
   @Roles(UserRole.SuperAdmin, UserRole.SchoolAdmin)
@@ -146,6 +151,6 @@ export class AdminStudentsController {
   @ApiResponse({ status: 200, description: 'Student successfully deleted' })
   @ApiResponse({ status: 404, description: 'Student not found' })
   async deleteStudent(@Param('id') id: string): Promise<void> {
-    return this.studentsService.deleteStudent(id);
+    return this.adminStudentsService.deleteStudent(id);
   }
 }

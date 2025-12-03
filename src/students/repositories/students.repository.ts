@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
-import { SupabaseService } from '../supabase/supabase.service';
-import { CreateStudentDto } from './dto/create-student-dto';
-import { UpdateStudentDto } from './dto/update-student-dto';
+import { SupabaseService } from '../../supabase/supabase.service';
+import { CreateStudentDto } from '../dto/create-student-dto';
+import { UpdateStudentDto } from '../dto/update-student-dto';
 import {
   Student,
   StudentFilters,
   StudentInsert,
-} from './entities/students.entity';
+} from '../entities/students.entity';
 
 @Injectable()
 export class StudentsRepository {

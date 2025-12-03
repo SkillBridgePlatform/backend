@@ -8,6 +8,8 @@ import { ClassCourseInsert } from '../entities/classes.entity';
 export class ClassCoursesRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
+  // Admin
+
   async getCoursesForClass(
     classId: string,
     pagination: PaginationOptions = {},

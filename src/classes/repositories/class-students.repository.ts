@@ -8,6 +8,8 @@ import { ClassStudentInsert } from '../entities/classes.entity';
 export class ClassStudentsRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
+  // Admin
+
   async assignStudentsToClass(
     classId: string,
     studentIds: string[],

@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { GetStudentProfileDocs } from 'src/docs/students/students.docs';
-import { StudentsService } from './students.service';
+import { StudentsService } from '../services/students.service';
 
 @ApiTags('Students')
 @ApiBearerAuth('access-token')

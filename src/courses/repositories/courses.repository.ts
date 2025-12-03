@@ -5,23 +5,22 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PaginationOptions, SortOptions } from 'src/common/interfaces';
+import { generateSlug } from 'src/common/utils';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateCourseDto } from '../dto/create-course-dto';
 import { UpdateCourseDto } from '../dto/update-course-dto';
-import { Course, CourseWithModulesAndLessons } from '../entities/course.entity';
+import {
+  Course,
+  CourseHierarchy,
+  CourseWithModulesAndLessons,
+} from '../entities/course.entity';
+import { ModuleHierarchy } from '../entities/module.entity';
 
 @Injectable()
 export class CoursesRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
-  generateSlug(title: string): string {
-    return title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
-  }
+  // Admin
 
   async getCourses(
     pagination: PaginationOptions = {},
@@ -77,7 +76,7 @@ export class CoursesRepository {
 
     if (!title) throw new BadRequestException('Title is required');
 
-    const baseSlug = this.generateSlug(title);
+    const baseSlug = generateSlug(title);
     let slug = baseSlug;
 
     let counter = 1;
@@ -143,24 +142,26 @@ export class CoursesRepository {
     if (error) throw new InternalServerErrorException(error.message);
   }
 
-  async getCourseWithModulesAndLessons(
+  async getCourseWithModulesAndLessonsById(
     courseId: string,
   ): Promise<CourseWithModulesAndLessons | null> {
     const { data, error } = await this.supabase.client
       .from('courses')
       .select(
         `
-      *,
-      modules (
         *,
-        lessons (*)
+        modules (
+          *,
+          lessons (*)
+        )
+      `,
       )
-    `,
-      )
-      .eq('id', courseId)
+      .eq('course_id', courseId)
       .maybeSingle();
 
-    if (error) throw new InternalServerErrorException(error.message);
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
     if (!data) return null;
 
     const modules = (data.modules || [])
@@ -173,6 +174,54 @@ export class CoursesRepository {
     return {
       ...data,
       modules,
+    };
+  }
+
+  // Student
+
+  async getCoursesByIds(courseIds: string[]): Promise<Course[]> {
+    if (!courseIds.length) return [];
+
+    const { data, error } = await this.supabase.client
+      .from('courses')
+      .select('*')
+      .in('id', courseIds);
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data as Course[];
+  }
+
+  async getCourseHierarchyBySlug(
+    courseSlug: string,
+  ): Promise<CourseHierarchy | null> {
+    const { data, error } = await this.supabase.client
+      .from('courses')
+      .select(
+        `
+      *,
+      modules (
+        *,
+        lessons (*)
+      )
+    `,
+      )
+      .eq('slug', courseSlug)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!data) return null;
+    const modulesWithLessons: ModuleHierarchy[] = (data.modules || [])
+      .sort((a, b) => a.order - b.order)
+      .map((module) => ({
+        module: { ...module },
+        lessons: (module.lessons || []).sort((a, b) => a.order - b.order),
+      }));
+
+    return {
+      course: { ...data, modules: [] } as Course,
+      modulesWithLessons,
     };
   }
 }

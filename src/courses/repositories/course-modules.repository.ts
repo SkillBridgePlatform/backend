@@ -135,6 +135,30 @@ export class CourseModulesRepository {
     }
   }
 
+  async getModuleCountsByCourseIds(
+    courseIds: string[],
+  ): Promise<Record<string, number>> {
+    if (!courseIds.length) return {};
+
+    const { data, error } = await this.supabase.client
+      .from('modules')
+      .select('course_id', { count: 'exact', head: false })
+      .in('course_id', courseIds);
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    const counts: Record<string, number> = {};
+    data?.forEach((module: { course_id: string }) => {
+      counts[module.course_id] = (counts[module.course_id] ?? 0) + 1;
+    });
+
+    courseIds.forEach((id) => {
+      if (!(id in counts)) counts[id] = 0;
+    });
+
+    return counts;
+  }
+
   private async generateUniqueSlug(
     courseId: string,
     title: string,

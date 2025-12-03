@@ -5,12 +5,15 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { generateSlug } from 'src/common/utils';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { CreateLessonDto } from '../dto/create-lesson-dto';
 import { UpdateLessonDto } from '../dto/update-lesson-dto';
 import {
   ContentBlock,
+  ContentBlockHierarchy,
   Lesson,
+  LessonHierarchy,
   LessonWithBlocks,
 } from '../entities/lesson.entity';
 
@@ -59,7 +62,7 @@ export class LessonsRepository {
 
     if (!title) throw new BadRequestException('Title is required');
 
-    const baseSlug = this.generateSlug(title);
+    const baseSlug = generateSlug(title);
     let slug = baseSlug;
     let counter = 1;
 
@@ -86,7 +89,7 @@ export class LessonsRepository {
       .maybeSingle();
 
     if (orderError) throw new InternalServerErrorException(orderError.message);
-    const order = lastLesson?.order != null ? lastLesson.order + 1 : 0;
+    const order = lastLesson?.order != null ? lastLesson.order + 1 : 1;
 
     const { data: lessonData, error: lessonError } = await this.supabase.client
       .from('lessons')
@@ -118,7 +121,7 @@ export class LessonsRepository {
           .insert({
             lesson_id: lessonId,
             type: block.type,
-            order: index,
+            order: index + 1,
           })
           .select()
           .single();
@@ -240,7 +243,7 @@ export class LessonsRepository {
           .insert({
             lesson_id: lessonId,
             type: block.type,
-            order: index,
+            order: index + 1,
           })
           .select()
           .single();
@@ -329,6 +332,130 @@ export class LessonsRepository {
     return data as LessonWithBlocks;
   }
 
+  async getLessonHierarchyBySlug(
+    lessonSlug: string,
+  ): Promise<LessonHierarchy | null> {
+    const { data, error } = await this.supabase.client
+      .from('lessons')
+      .select(
+        `
+      *,
+      module:module_id(
+        id,
+        course:course_id(id, title)
+      ),
+      contentBlocks:content_blocks(
+        *,
+        text:text_content_blocks(*),
+        video:video_content_blocks(*)
+      )
+    `,
+      )
+      .eq('slug', lessonSlug)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    if (!data) return null;
+
+    const contentBlocks: ContentBlockHierarchy[] = (
+      data.contentBlocks || []
+    ).map((block: any) => ({
+      contentBlock: {
+        id: block.id,
+        lesson_id: block.lesson_id,
+        type: block.type,
+        order: block.order,
+        created_at: block.created_at,
+        updated_at: block.updated_at,
+      },
+      text: block.text
+        ? {
+            content_block_id: block.text.content_block_id,
+            title: block.text.title,
+            content: block.text.content,
+          }
+        : undefined,
+      video: block.video
+        ? {
+            content_block_id: block.video.content_block_id,
+            title: block.video.title,
+            video_url: block.video.video_url,
+          }
+        : undefined,
+    }));
+
+    const {
+      module: _module,
+      contentBlocks: _unusedContentBlocks,
+      ...lessonFields
+    } = data;
+
+    const lessonHierarchy: LessonHierarchy = {
+      lesson: lessonFields,
+      contentBlocks,
+      courseId: data.module?.course?.id,
+      courseTitle: data.module?.course?.title,
+      courseModuleId: data.module?.id,
+    };
+
+    return lessonHierarchy;
+  }
+
+  async getPrevNextLessons(courseId: string, currentLessonSlug: string) {
+    const { data: lessons, error } = await this.supabase.client
+      .from('lessons')
+      .select(
+        `
+        slug,
+        title,
+        order,
+        module:module_id (
+          id,
+          order,
+          course_id
+        )
+      `,
+      )
+      .eq('module.course_id', courseId);
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    if (!lessons || lessons.length === 0) {
+      return { prevLesson: undefined, nextLesson: undefined };
+    }
+
+    const sortedLessons = lessons.sort((a, b) => {
+      const moduleOrderA = a.module?.order ?? 0;
+      const moduleOrderB = b.module?.order ?? 0;
+
+      if (moduleOrderA !== moduleOrderB) {
+        return moduleOrderA - moduleOrderB;
+      }
+
+      const lessonOrderA = a.order ?? 0;
+      const lessonOrderB = b.order ?? 0;
+
+      return lessonOrderA - lessonOrderB;
+    });
+
+    const index = sortedLessons.findIndex((l) => l.slug === currentLessonSlug);
+
+    if (index === -1) {
+      return { prevLesson: undefined, nextLesson: undefined };
+    }
+
+    const prevLesson = index > 0 ? sortedLessons[index - 1] : undefined;
+    const nextLesson =
+      index < sortedLessons.length - 1 ? sortedLessons[index + 1] : undefined;
+
+    return { prevLesson, nextLesson };
+  }
+
   async deleteLesson(id: string): Promise<void> {
     const { error } = await this.supabase.client
       .from('lessons')
@@ -338,12 +465,27 @@ export class LessonsRepository {
     if (error) throw new InternalServerErrorException(error.message);
   }
 
-  generateSlug(title: string): string {
-    return title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
+  async getLessonsByCourse(courseId: string): Promise<Lesson[]> {
+    const { data: modules, error: moduleError } = await this.supabase.client
+      .from('modules')
+      .select('id')
+      .eq('course_id', courseId);
+
+    if (moduleError)
+      throw new InternalServerErrorException(moduleError.message);
+    if (!modules || modules.length === 0) return [];
+
+    const moduleIds = modules.map((m) => m.id);
+
+    const { data: lessons, error: lessonError } = await this.supabase.client
+      .from('lessons')
+      .select('*')
+      .in('module_id', moduleIds)
+      .order('order', { ascending: true });
+
+    if (lessonError)
+      throw new InternalServerErrorException(lessonError.message);
+
+    return lessons as Lesson[];
   }
 }
