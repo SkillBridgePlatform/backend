@@ -342,7 +342,7 @@ export class LessonsRepository {
       *,
       module:module_id(
         id,
-        course:course_id(id)
+        course:course_id(id, title)
       ),
       contentBlocks:content_blocks(
         *,
@@ -397,6 +397,7 @@ export class LessonsRepository {
       lesson: lessonFields,
       contentBlocks,
       courseId: data.module?.course?.id,
+      courseTitle: data.module?.course?.title,
       courseModuleId: data.module?.id,
     };
 

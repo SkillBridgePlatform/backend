@@ -21,6 +21,7 @@ export interface LessonHierarchy {
   lesson: Lesson;
   contentBlocks: ContentBlockHierarchy[];
   courseId: string;
+  courseTitle: string;
   courseModuleId: string;
 }
 
