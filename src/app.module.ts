@@ -8,6 +8,7 @@ import { CoursesModule } from './courses/courses.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { HealthModule } from './health/health.module';
+import { QuizzesModule } from './quizzes/quizzes.module';
 import { SchoolsModule } from './schools/schools.module';
 import { StudentsModule } from './students/students.module';
 import { SupabaseModule } from './supabase/supabase.module';
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module';
     SchoolsModule,
     DashboardsModule,
     CoursesModule,
+    QuizzesModule,
     StudentsModule,
     AuthModule,
     AdminAuthModule,
